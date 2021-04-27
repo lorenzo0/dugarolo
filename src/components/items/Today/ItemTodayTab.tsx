@@ -8,7 +8,7 @@ interface ItemProps {
   duration_irrigation: string;
 }
 
-const LayoutTabs: React.FC<ItemProps> = ({ name, canal_name, farm_name, irrigation_time, duration_irrigation }) => {
+const ItemTodayTab: React.FC<ItemProps> = ({ name, canal_name, farm_name, irrigation_time, duration_irrigation }) => {
   return (
     <div className="container">
       <strong>{name}</strong>
@@ -21,4 +21,5 @@ const LayoutTabs: React.FC<ItemProps> = ({ name, canal_name, farm_name, irrigati
   );
 };
 
-export default LayoutTabs;
+
+export default ItemTodayTab;
