@@ -10,9 +10,9 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { ellipse, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Today/TodayTab';
-import Tab2 from './pages/Tomorrow/TomorrowTab';
-import Tab3 from './pages/History/HistoryTab';
+import Tab1 from './tabs/Today/TodayTab';
+import Tab2 from './tabs/Tomorrow/TomorrowTab';
+import Tab3 from './tabs/History/HistoryTab';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';

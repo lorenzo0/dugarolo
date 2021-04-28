@@ -4,8 +4,8 @@ import {List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography} from '
 import './ListRequest.css';
 import '../../theme/variables.css';
 
-import TodayCard from '../items/Today/ItemTodayTab'
-import TomorrowCard from '../items/Tomorrow/ItemTomorrowTab'
+import TodayCard from '../cards/Today/ItemTodayTab'
+import TomorrowCard from '../cards/Tomorrow/ItemTomorrowTab'
 
 interface ContainerProps {
   name: string;
@@ -14,6 +14,24 @@ interface ContainerProps {
 // Array(s) are gonna be deleted when we have the APIs working 
 const todayCardList = [
   {
+    name : "name",
+    canal_name : "canal",
+    farm_name : "farm",
+    irrigation_time : "irrigation",
+    duration_time : "duration"
+  },{
+    name : "name",
+    canal_name : "canal",
+    farm_name : "farm",
+    irrigation_time : "irrigation",
+    duration_time : "duration"
+  },{
+    name : "name",
+    canal_name : "canal",
+    farm_name : "farm",
+    irrigation_time : "irrigation",
+    duration_time : "duration"
+  },{
     name : "name",
     canal_name : "canal",
     farm_name : "farm",

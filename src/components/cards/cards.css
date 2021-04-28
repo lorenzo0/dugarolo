@@ -1,0 +1,44 @@
+
+.subtitle {
+    font-size: 12;
+    display: inline;
+}
+
+.left{
+    float: left;
+}
+
+.right{
+    float: right;
+}
+
+.center{
+    float: center;
+}
+
+.avatar{
+    background-color: red;
+}
+
+.title{
+    font-size: 14;
+    display: inline;
+}
+
+
+.inline {
+    display: inline;
+}
+
+.irrigation {
+    display: inline;
+    float: right;
+}
+
+.item_req{
+    width: 95%;
+    background-color: white;
+    margin: 10px;
+    box-shadow: 2px 4px beige;
+    border: 2px solid black;
+}

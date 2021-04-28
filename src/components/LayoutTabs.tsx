@@ -12,7 +12,8 @@ interface ContainerProps {
 const LayoutTabs:React.FC<ContainerProps> = ({ name }) => {
   return (
     <div className="container">
-      <div className="top_div"/>
+      <div className="top_div">
+      </div>
       <div className="bottom_div">
          <ListRequest name={name} />
       </div>
