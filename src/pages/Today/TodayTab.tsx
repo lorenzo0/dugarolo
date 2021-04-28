@@ -16,7 +16,7 @@ const Tab1: React.FC = () => {
             <IonTitle size="large">Today</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <LayoutTabs name="Today's activities" />
+        <LayoutTabs name="Today" />
       </IonContent>
     </IonPage>
   );

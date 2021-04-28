@@ -1,4 +1,4 @@
-import './ItemTodayTab.css';
+import './ItemTomorrowTab.css';
 import {List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography} from '@material-ui/core';
 import React from 'react';
 
@@ -8,10 +8,12 @@ interface ItemProps {
   canal_name: string;
   farm_name: string;
   irrigation_time: string;
-  duration_time: string;
+  duration_time: string,
+  accepted: boolean;
 }
 
-const ItemTodayTab: React.FC<ItemProps> = ({ key, name, canal_name, farm_name, irrigation_time, duration_time }) => {
+const ItemTomorrowTab: React.FC<ItemProps> = ({ key, name, canal_name, farm_name, irrigation_time, duration_time, accepted }) => {
+
   return (
     <div className = "Item_req">
       <ListItem alignItems="flex-start" key={key}>
@@ -27,7 +29,7 @@ const ItemTodayTab: React.FC<ItemProps> = ({ key, name, canal_name, farm_name, i
                   className="inline"
                   color="textPrimary"
                 >
-                  name
+                name
                 </Typography>
               </React.Fragment>
             }
@@ -48,7 +50,7 @@ const ItemTodayTab: React.FC<ItemProps> = ({ key, name, canal_name, farm_name, i
                   className="irrigation"
                   color="textSecondary"
                 >
-                irrigation_time
+                accepted
                 </Typography>
                 
               </React.Fragment>
@@ -60,4 +62,4 @@ const ItemTodayTab: React.FC<ItemProps> = ({ key, name, canal_name, farm_name, i
 };
 
 
-export default ItemTodayTab;
+export default ItemTomorrowTab;
