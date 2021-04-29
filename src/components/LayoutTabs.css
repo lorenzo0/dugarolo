@@ -22,6 +22,8 @@
   margin:auto;
   text-align:center;
   color:#FFFFFF;
+  overflow: scroll;
+  padding-bottom: 40px;
 }
 
 body, html, .container {
