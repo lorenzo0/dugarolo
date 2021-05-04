@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import TodayCard from '../components/cards/Today/ItemTodayTab'
 import {List} from '@material-ui/core';
 
-class AssetLoader extends Component{
+class CardLoader extends Component{
 
     constructor(props){
         super(props);
@@ -61,4 +61,4 @@ class AssetLoader extends Component{
 
 }
 
-export default AssetLoader;
+export default CardLoader;
