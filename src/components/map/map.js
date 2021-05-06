@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 class MapView extends Component {
   constructor(props) {
@@ -19,10 +20,9 @@ class MapView extends Component {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
           />
-        </MapContainer>      
+        </MapContainer>
     );
   }
 }
-//<Markers venues={data.venues}/>
 
 export default MapView;

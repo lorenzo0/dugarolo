@@ -7,11 +7,16 @@
   transform: translateY(-50%);
 }
 
+.leaflet-container {  width: 100vw;  height: 100vh; }
+
 .top_div {
   height:40%;
+  max-height: 40%;
   width:100%;
   margin:auto;
   text-align:center;
+  overflow: hidden;
+  margin-top: 56px;
   }
   
 .bottom_div {
@@ -43,4 +48,13 @@ body, html, .container {
 
 .container a {
   text-decoration: none;
+}
+
+.btns-today{
+  flex-wrap: wrap;
+}
+
+.btn-today{
+  flex-grow: 1;
+  width: 33%;
 }

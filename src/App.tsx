@@ -51,7 +51,6 @@ const App: React.FC = () => (
           <Route exact path="/">
             <Redirect to="/TodayTab" />
           </Route>
-
         </IonRouterOutlet>
         
         <IonTabBar slot="bottom">

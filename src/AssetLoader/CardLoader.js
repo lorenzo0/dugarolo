@@ -37,7 +37,7 @@ class CardLoader extends Component{
                         <List className='list'>
                                 {items.map(item => (
                                     <li key={item.id}>
-                                        <TodayCard name={item.name} farm_name={item.username} irrigation_time={item.email} canal_name={item.address.street} duration_time={item.address.suite}/>
+                                        <TodayCard name={item.name} farm_name={item.username} irrigation_time={item.email} canal_name={item.address.street} duration_time={item.address.suite} active={false}/>
                                     </li>
                                 ))}
                         </List>
