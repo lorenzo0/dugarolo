@@ -8,8 +8,8 @@ class MapView extends Component {
     this.state = {
       items: [],
       isLoaded: false,
-      currentLocation: { lat: 44.5030147, lng: 11.3138306 },
-      zoom: 12,
+      currentLocation: { lat: 44.7016081, lng: 10.5682283 },
+      zoom: 10,
     }
   }
 
@@ -59,9 +59,6 @@ class MapView extends Component {
 
 
 export default MapView;
-
-//<Polygon pathOptions={purpleOptions} positions={polygon} />
-                //<Marker position={[item.location.lat, item.location.lon]}/> 
 
 /*
 id

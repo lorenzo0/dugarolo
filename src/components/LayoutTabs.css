@@ -50,11 +50,3 @@ body, html, .container {
   text-decoration: none;
 }
 
-.btns-today{
-  flex-wrap: wrap;
-}
-
-.btn-today{
-  flex-grow: 1;
-  width: 33%;
-}
