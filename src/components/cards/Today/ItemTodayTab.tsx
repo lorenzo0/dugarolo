@@ -20,22 +20,18 @@ const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irri
 
   function play(){
     fetch('https://jsonplaceholder.typicode.com/posts', {
-      method: 'POST',
-      body: JSON.stringify({ 'message': "Nuovo stato: " + !running, 'status': !running }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    })
-  .then((response) => response.json())
-  .then((json) => console.log(json));
-
-/*
-    fetch('https://reqres.in/api/posts', requestOptions)
-        .then(response => response.json())
-        .then(data => {if(data.ok) {
-          setRunning(!running)
-        }
-      });*/
+          method: 'POST',
+          body: JSON.stringify({ 'message': "Nuovo stato: " + !running, 'status': !running }),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+          },
+        })
+        .then((response) => response.ok)
+        .then((ok) => {
+            if(ok == true){
+              setRunning(!running)
+            }
+        })
   }
 
   var finalStr = "Start at: " + irrigation_time + " - Last for: " + duration_time;
