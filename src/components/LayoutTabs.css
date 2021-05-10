@@ -7,7 +7,11 @@
   transform: translateY(-50%);
 }
 
-.leaflet-container {  width: 100vw;  height: 100vh; }
+.leaflet-container {  
+    width: 100%;
+    height: 100%;  
+    margin-top: 58px;
+}
 
 .top_div {
   height:40%;
@@ -16,7 +20,6 @@
   margin:auto;
   text-align:center;
   overflow: hidden;
-  margin-top: 56px;
   }
   
 .bottom_div {
