@@ -28,7 +28,7 @@
   width:100%;
   margin:auto;
   text-align:center;
-  color:#FFFFFF;
+  color:black;
   overflow: scroll;
   padding-bottom: 40px;
 }
@@ -53,3 +53,39 @@ body, html, .container {
   text-decoration: none;
 }
 
+/*Start handling request detail*/
+.column_2 {
+  float: left;
+  width: 50%;
+}
+
+.row{
+  margin-top: 20px;
+  margin: 5%;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.title{
+  font-weight: 900;
+}
+
+.title-canal{
+  font-weight: 900;
+  margin-top: 20px;
+}
+
+.value{
+  font-weight: 500;
+}
+
+.btn-back{
+  float: left;
+  margin: 10px;
+}
+
+/*End handling request detail*/

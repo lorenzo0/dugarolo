@@ -5,10 +5,11 @@ import 'leaflet/dist/leaflet.css';
 class MapView extends Component {
   constructor(props) {
     super(props);
+    let position = props.position;
     this.state = {
       items: [],
       isLoaded: false,
-      currentLocation: { lat: 44.7016081, lng: 10.5682283 },
+      currentLocation: {lat: position.lat, lng: position.long},
       zoom: 10,
     }
   }
@@ -33,12 +34,12 @@ class MapView extends Component {
       return payload.fields.map(fields =>{
         farms.push({id:payload.name, field:fields});
       }).join("\n")
-    }).join("\n")
-    
+    }).join("\n")    
 
     if(!isLoaded)
         return <div> Loading... </div>;
     else{
+
       return (
           <MapContainer center={currentLocation} zoom={zoom}>
             <TileLayer
@@ -55,7 +56,6 @@ class MapView extends Component {
     }
   }
 }
-
 
 
 export default MapView;

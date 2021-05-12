@@ -11,14 +11,21 @@ interface ContainerProps {
 
 const LayoutTabs:React.FC<ContainerProps> = ({ name }) => {
   const [loaded, setLoaded] = useState<boolean>(false);
+  let ltnlng = {lat:44.7016081, long:10.5682283};
+  function activeMap(newPosition){
+    console.log(newPosition);
+    return(
+      <MapView position={newPosition}/>
+    )
+  } 
   
   return (
     <div className="container">
       <div className="top_div">
-        <MapView />
+        {activeMap(ltnlng)}
       </div>
       <div className="bottom_div">
-        <AssetLoader name={name} />
+        <AssetLoader name={name} map={activeMap} />
       </div>
     </div>
   );

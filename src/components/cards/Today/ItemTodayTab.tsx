@@ -12,9 +12,10 @@ interface TodayObj {
   duration_time: string;
   active: boolean;
   delEvent: any;
+  onPressEvent: any;
 }
 
-const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irrigation_time, duration_time, active, delEvent }) => {
+const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irrigation_time, duration_time, active, delEvent, onPressEvent }) => {
 
  const [running, setRunning] = useState<boolean>(active);
 
@@ -47,6 +48,7 @@ const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irri
           
         title = {canal_name}
         subheader = {finalStr}
+        onClick={onPressEvent}
       />
       
       <div className="flex-row-container">

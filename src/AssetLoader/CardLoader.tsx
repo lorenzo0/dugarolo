@@ -1,18 +1,22 @@
 import React, {Component, useState, useEffect} from 'react';
 import TodayCard from '../components/cards/Today/ItemTodayTab'
 import TomorrowCard from '../components/cards/Tomorrow/ItemTomorrowTab'
+import DetailsTab from '../tabs/Details/DetailsTab'
 import {List} from '@material-ui/core';
 
 interface ContainerProps {
     name: string;
+    map: any;
 }
   
-const CardLoader:React.FC<ContainerProps> = ({ name }) => {
+const CardLoader:React.FC<ContainerProps> = ({ name, map }) => {
 
     const [isLoaded, setIsLoaded] = React.useState(false);
     const [jsonReq, setJsonReq] = React.useState<any[]>([]);
     const [todayCardList, setTodayCardList] = React.useState<any[]>([]);
     const [tomorrowCardList, setTomorrowCardList] = React.useState<any[]>([]);
+    const [detailsClicked, setDetailsClicked] = React.useState(false);
+    const [itemDetails, setItemDetails] = useState<any>();
 
     /* isLoaded is not set false in the first time */
     useEffect(() => {
@@ -71,6 +75,20 @@ const CardLoader:React.FC<ContainerProps> = ({ name }) => {
         .then(() => console.log(id));
     }
 
+    const onPressEvent = (item) => {
+        setItemDetails(item);        
+        setDetailsClicked(true);
+        map({lat:14,long:45});
+    }
+
+    function goToDetails(){
+        return <DetailsTab ObjectDetails = {itemDetails} BackEvent={() => backToList()}/>;
+    }
+
+    function backToList(){
+        setDetailsClicked(false);
+    }
+
     /* Accepting event for tomorrow tab */
     const acceptEventTomorrow = (id) => {
 
@@ -121,6 +139,7 @@ const CardLoader:React.FC<ContainerProps> = ({ name }) => {
                     duration_time={item.address.suite} 
                     active={false}
                     delEvent={() => deleteEvent(item.id, "Today")}
+                    onPressEvent={() => onPressEvent(item)}
                 />
             : <div></div>
         ));
@@ -149,11 +168,15 @@ const CardLoader:React.FC<ContainerProps> = ({ name }) => {
 
     return jsonReq && (
         <div>
-            <List className='list'>
-                { name == "Today" ? todayCardList 
-                  : name == "Tomorrow" ? tomorrowCardList : <div></div>
-                }
-            </List>
+            {
+                !detailsClicked ? (
+                    <List className='list'>
+                        { name == "Today" ? todayCardList 
+                        : name == "Tomorrow"  ? tomorrowCardList : <div></div>
+                        }
+                    </List>
+                ) : goToDetails()
+            }
         </div>
     )
 }

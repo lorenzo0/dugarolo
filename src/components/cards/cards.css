@@ -43,6 +43,14 @@
     border: 2px solid black;
 }
 
-MuiCardActions-root.MuiCardActions-spacing{
-    background-color:red;
+/* Handle buttons card today/tomorrow*/
+.flex-row-container{
+    display: flex;
+    justify-content: space-around;
+    flex-flow: row wrap;
+    align-items: stretch;
+}
+
+.flex-row-item{
+    flex-grow: 1;
 }
