@@ -78,11 +78,14 @@ const CardLoader:React.FC<ContainerProps> = ({ name, map }) => {
     const onPressEvent = (item) => {
         setItemDetails(item);        
         setDetailsClicked(true);
-        map({lat:14,long:45});
     }
 
     function goToDetails(){
         return <DetailsTab ObjectDetails = {itemDetails} BackEvent={() => backToList()}/>;
+    }
+
+    const moveToLocation = (newLocation) => {
+        map(newLocation);
     }
 
     function backToList(){
@@ -131,6 +134,7 @@ const CardLoader:React.FC<ContainerProps> = ({ name, map }) => {
         var initialTodayList = jsonReq.map(item => (
             item.status != "deleted" ?
                 <TodayCard 
+                    key={item.id}
                     id={item.id} 
                     name={item.name} 
                     farm_name={item.username} 
@@ -140,6 +144,7 @@ const CardLoader:React.FC<ContainerProps> = ({ name, map }) => {
                     active={false}
                     delEvent={() => deleteEvent(item.id, "Today")}
                     onPressEvent={() => onPressEvent(item)}
+                    onLocationFieldEvent={() => moveToLocation([40,2])}
                 />
             : <div></div>
         ));
@@ -151,6 +156,7 @@ const CardLoader:React.FC<ContainerProps> = ({ name, map }) => {
     function loadTomorrow(){
         var initialTomorrowList = jsonReq.map(item => (
             <TomorrowCard 
+                key={item.id}
                 id={item.id} 
                 name={item.name} 
                 farm_name={item.username} 

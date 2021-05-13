@@ -13,9 +13,10 @@ interface TodayObj {
   active: boolean;
   delEvent: any;
   onPressEvent: any;
+  onLocationFieldEvent: any;
 }
 
-const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irrigation_time, duration_time, active, delEvent, onPressEvent }) => {
+const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irrigation_time, duration_time, active, delEvent, onPressEvent, onLocationFieldEvent }) => {
 
  const [running, setRunning] = useState<boolean>(active);
 
@@ -58,7 +59,7 @@ const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irri
               <Button className="btn-today-play" size="small" startIcon={<Pause />} onClick={play}>Pause</Button> :
               <Button className="btn-today-play" size="small" startIcon={<PlayArrow />} onClick={play}>Start</Button>}
           </div>
-          <div className="flex-row-item"><Button className="btn-today-location" size="small" startIcon={<Room />}>Location</Button></div>
+          <div className="flex-row-item"><Button className="btn-today-location" size="small" startIcon={<Room />} onClick={onLocationFieldEvent}>Location</Button></div>
           <div className="flex-row-item">
             {running ? 
             <Button className="btn-today-delete" size="small" startIcon={<Done />}>Satisfied</Button> :
