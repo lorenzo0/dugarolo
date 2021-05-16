@@ -1,30 +1,55 @@
+import React, { useState } from 'react';
 import './LayoutTabs.css';
-import {List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography} from '@material-ui/core';
-import AssetLoader from '../AssetLoader/CardLoader'
-import MapView, { onClick } from './map/map'
-import FlyToButton from './map/map'
-import {useState} from 'react';
+import CardLoader from '../AssetLoader/CardLoader';
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import MapView, { onClick } from './map/map';
+import DateUtils from '@date-io/dayjs';
+import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
-interface ContainerProps {
-  name: string;
-}
+export default function LayoutTabs({ name }) {
+  const [from, setFrom] = useState<MaterialUiPickersDate>();
+  const [to, setTo] = useState<MaterialUiPickersDate>();
 
-const LayoutTabs:React.FC<ContainerProps> = ({ name }) => {
-
-  function moveMap(newPosition){
+  function moveMap(newPosition) {
     onClick(newPosition);
   }
-  
+
+  const style = {
+    background: '#ffffff',
+    padding: '1px 0 1px 0',
+  };
+
   return (
     <div className="container">
       <div className="top_div">
         <MapView />
       </div>
+      {name === 'History' && (
+        <MuiPickersUtilsProvider utils={DateUtils}>
+          <DatePicker
+            value={from}
+            onChange={setFrom}
+            id="da"
+            label="Da"
+            disableFuture
+            autoOk
+            style={style}
+          />
+          <span className="space" />
+          <DatePicker
+            value={to}
+            onChange={setTo}
+            id="a"
+            label="A"
+            disableFuture
+            autoOk
+            style={style}
+          />
+        </MuiPickersUtilsProvider>
+      )}
       <div className="bottom_div">
-        <AssetLoader name={name} map={moveMap} />
+        <CardLoader name={name} map={moveMap} />
       </div>
     </div>
   );
-};
-
-export default LayoutTabs;
+}

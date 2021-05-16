@@ -1,190 +1,189 @@
-import React, {Component, useState, useEffect} from 'react';
-import TodayCard from '../components/cards/Today/ItemTodayTab'
-import TomorrowCard from '../components/cards/Tomorrow/ItemTomorrowTab'
-import DetailsTab from '../tabs/Details/DetailsTab'
-import {List} from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import TodayCard from '../components/cards/Today/ItemTodayTab';
+import TomorrowCard from '../components/cards/Tomorrow/ItemTomorrowTab';
+import DetailsTab from '../tabs/Details/DetailsTab';
+import { List } from '@material-ui/core';
 
 interface ContainerProps {
-    name: string;
-    map: any;
+  name: string;
+  map: any;
 }
-  
-const CardLoader:React.FC<ContainerProps> = ({ name, map }) => {
 
-    const [isLoaded, setIsLoaded] = React.useState(false);
-    const [jsonReq, setJsonReq] = React.useState<any[]>([]);
-    const [todayCardList, setTodayCardList] = React.useState<any[]>([]);
-    const [tomorrowCardList, setTomorrowCardList] = React.useState<any[]>([]);
-    const [detailsClicked, setDetailsClicked] = React.useState(false);
-    const [itemDetails, setItemDetails] = useState<any>();
+export default function CardLoader({ name, map }: ContainerProps): JSX.Element {
+  const [jsonReq, setJsonReq] = React.useState<any[]>([]);
+  const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
 
-    /* isLoaded is not set false in the first time */
-    useEffect(() => {
-        fetch('https://jsonplaceholder.typicode.com/users')
-        .then( res => res.json())
-        .then( json => {setJsonReq(json);})
-        .then(() => setIsLoaded(true))
-        .then(() => loadToday())
-        .then(() => loadTomorrow())
-    }, [isLoaded]);
+  const [cardList, setCardList] = React.useState<any[]>([]);
 
-     
+  const [detailsClicked, setDetailsClicked] = React.useState(false);
+  const [itemDetails, setItemDetails] = useState<any>();
 
-     /* 
-        
-            If it is just true or false
-                .then((response) => response.ok);
-           If we have to check for an answer
-                /*.then((response) => response.json())
-                then((jsonReply) => ....
+  /* isLoaded is not set false in the first time */
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then(res => res.json())
+      .then(json => setJsonReq(json))
+      .then(() => loadCards())
+      .then(() => setIsLoaded(true));
+  }, [isLoaded]);
 
-            When we delete a record, we send a post request and, after it received an ok from the request
-            (status 200), we fetch again the result in order to avoid the ghosting (another user at the same time delete a request).
-
-            Otherwise, this works.
-
-            const deleteEventToday = (id) => {
-                const newList = jsonReq.filter((item) => item.id !== id);
-                setJsonReq(newList);
-            }
-
-            We can not reload the page (so it would fetch again), otherwise we would reload the map again
-
-        */ 
-
-        /* Deleting event for today and tomorrow tab. We use 'name' in order to understand from where the method is called */
-    const deleteEvent = (id, name) => {
-        fetch('https://jsonplaceholder.typicode.com/posts', {
-          method: 'POST',
-          body: JSON.stringify({ 'message': "Accepted request", 'status': "Accepted" }),
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-          },
-        })
-        .then((response) => response.ok)
-        .then((ok) => {
-            if(ok == true){
-
-                setIsLoaded(false);
-                setTodayCardList([]);
-
-                if(name=="Today") refreshRequests("Today")
-                else if(name=="Tomorrow") refreshRequests("Tomorrow");
-            }
-        })
-        .then(() => console.log(id));
+  function loadCards() {
+    switch (name) {
+      case 'Today':
+        setCardList(loadToday());
+        break;
+      case 'Tomorrow':
+        setCardList(loadTomorrow());
+        break;
+      case 'History':
+        setCardList(loadHistory());
+        break;
     }
+  }
 
-    const onPressEvent = (item) => {
-        setItemDetails(item);        
-        setDetailsClicked(true);
-    }
+  function loadToday(): JSX.Element[] {
+    console.log("Loading Today's cards");
 
-    function goToDetails(){
-        return <DetailsTab ObjectDetails = {itemDetails} BackEvent={() => backToList()}/>;
-    }
+    return jsonReq
+      .filter(item => item.status !== 'deleted')
+      .map(item => (
+        <TodayCard
+          key={item.id}
+          id={item.id}
+          name={item.name}
+          farm_name={item.username}
+          irrigation_time={item.email}
+          canal_name={item.address.street}
+          duration_time={item.address.suite}
+          active={false}
+          delEvent={() => deleteEvent(item.id, 'Today')}
+          onPressEvent={() => onPressEvent(item)}
+          onLocationFieldEvent={() => moveToLocation([40, 2])}
+        />
+      ));
+  }
 
-    const moveToLocation = (newLocation) => {
-        map(newLocation);
-    }
+  function loadTomorrow(): JSX.Element[] {
+    console.log("Loading Tomorrow's cards");
 
-    function backToList(){
-        setDetailsClicked(false);
-    }
+    return jsonReq
+      .filter(item => item.status !== 'deleted')
+      .map(item => (
+        <TomorrowCard
+          key={item.id}
+          id={item.id}
+          name={item.name}
+          farm_name={item.username}
+          irrigation_time={item.email}
+          canal_name={item.address.street}
+          duration_time={item.address.suite}
+          acceptEvent={() => acceptEventTomorrow(item.id)}
+          delEvent={() => deleteEvent(item.id, 'Tomorrow')}
+        />
+      ));
+  }
 
-    /* Accepting event for tomorrow tab */
-    const acceptEventTomorrow = (id) => {
+  function loadHistory(): JSX.Element[] {
+    console.log("Loading History's cards");
 
-        fetch('https://jsonplaceholder.typicode.com/posts', {
-          method: 'POST',
-          body: JSON.stringify({ 'message': "Accepted request", 'status': "Accepted" }),
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-          },
-        })
-        .then((response) => response.ok)
-        .then((ok) => {
-            if(ok == true){
-                setTomorrowCardList([]);
-                refreshRequests("Tomorrow");
-            }
-        })
-        .then(() => console.log(id));
-    }
+    return jsonReq
+      .filter(item => item.status !== 'deleted')
+      .map(item => (
+        <TomorrowCard
+          key={item.id}
+          id={item.id}
+          name={item.name}
+          farm_name={item.username}
+          irrigation_time={item.email}
+          canal_name={item.address.street}
+          duration_time={item.address.suite}
+          acceptEvent={() => acceptEventTomorrow(item.id)}
+          delEvent={() => deleteEvent(item.id, 'Tomorrow')}
+        />
+      ));
+  }
 
-    function refreshRequests(name){
-        setIsLoaded(false);
+  function deleteEvent(id: string, tabName: string) {
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      body: JSON.stringify({ message: 'Accepted request', status: 'Accepted' }),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          setIsLoaded(false);
 
-        if(name="Today"){
-            fetch('https://jsonplaceholder.typicode.com/users')
-                .then( res => res.json())
-                .then( json => {setJsonReq(json);})
-                .then(() => setIsLoaded(true))
-                .then(() => loadToday());
-        }else if(name="Tomorrow"){
-            fetch('https://jsonplaceholder.typicode.com/users')
-                .then( res => res.json())
-                .then( json => {setJsonReq(json);})
-                .then(() => setIsLoaded(true))
-                .then(() => loadTomorrow());
+          if (tabName === 'Today') refreshRequests('Today');
+          else if (tabName === 'Tomorrow') refreshRequests('Tomorrow');
+          else if (tabName === 'History') refreshRequests('History');
         }
+      })
+      .then(() => console.log(`Deleted: ${id}`));
+  }
+
+  function refreshRequests(tabName: string) {
+    setIsLoaded(false);
+
+    if (tabName === 'Today') {
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then(res => res.json())
+        .then(json => setJsonReq(json))
+        .then(() => setCardList(loadToday()))
+        .then(() => setIsLoaded(true));
+    } else if (tabName === 'Tomorrow') {
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then(res => res.json())
+        .then(json => setJsonReq(json))
+        .then(() => setCardList(loadTomorrow()))
+        .then(() => setIsLoaded(true));
+    } else if (tabName === 'History') {
+      fetch('https://jsonplaceholder.typicode.com/users')
+        .then(res => res.json())
+        .then(json => setJsonReq(json))
+        .then(() => setCardList(loadHistory()))
+        .then(() => setIsLoaded(true));
     }
+  }
 
-    function loadToday(){
-        var initialTodayList = jsonReq.map(item => (
-            item.status != "deleted" ?
-                <TodayCard 
-                    key={item.id}
-                    id={item.id} 
-                    name={item.name} 
-                    farm_name={item.username} 
-                    irrigation_time={item.email} 
-                    canal_name={item.address.street} 
-                    duration_time={item.address.suite} 
-                    active={false}
-                    delEvent={() => deleteEvent(item.id, "Today")}
-                    onPressEvent={() => onPressEvent(item)}
-                    onLocationFieldEvent={() => moveToLocation([40,2])}
-                />
-            : <div></div>
-        ));
+  function onPressEvent(item) {
+    setItemDetails(item);
+    setDetailsClicked(true);
 
-        setTodayCardList(initialTodayList);
-        setJsonReq([]);
-    }
+    console.log(`Clicked: ${item.id}`);
+  }
 
-    function loadTomorrow(){
-        var initialTomorrowList = jsonReq.map(item => (
-            <TomorrowCard 
-                key={item.id}
-                id={item.id} 
-                name={item.name} 
-                farm_name={item.username} 
-                irrigation_time={item.email} 
-                canal_name={item.address.street} 
-                duration_time={item.address.suite} 
-                acceptEvent={() => acceptEventTomorrow(item.id)}
-                delEvent={() => deleteEvent(item.id, "Tomorrow")}
-            />
-        ));
+  function moveToLocation(newLocation) {
+    map(newLocation);
+  }
 
-        setTomorrowCardList(initialTomorrowList);
-        setJsonReq([]);
-    }
+  /* Accepting event for tomorrow tab */
+  function acceptEventTomorrow(id: string) {
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      body: JSON.stringify({ message: 'Accepted request', status: 'Accepted' }),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+      .then(() => setIsLoaded(true))
+      .then(() => loadTomorrow());
+  }
 
-    return jsonReq && (
-        <div>
-            {
-                !detailsClicked ? (
-                    <List className='list'>
-                        { name == "Today" ? todayCardList 
-                        : name == "Tomorrow"  ? tomorrowCardList : <div></div>
-                        }
-                    </List>
-                ) : goToDetails()
-            }
-        </div>
+  function goToDetails() {
+    console.log('Opening details for: ' + itemDetails.id);
+
+    return <DetailsTab ObjectDetails={itemDetails} BackEvent={() => setDetailsClicked(false)} />;
+  }
+
+  return isLoaded ? (
+    !detailsClicked ? (
+      <List className="list">{cardList}</List>
+    ) : (
+      goToDetails()
     )
+  ) : (
+    <h1>Loading...</h1>
+  );
 }
-
-export default CardLoader;

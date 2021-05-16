@@ -1,14 +1,6 @@
 import { Redirect, Route } from 'react-router-dom';
-import {
-  IonApp,
-  IonLabel,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-} from '@ionic/react';
+import { IonApp, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
 import Tab1 from './tabs/Today/TodayTab';
 import Tab2 from './tabs/Tomorrow/TomorrowTab';
 import Tab3 from './tabs/History/HistoryTab';
@@ -37,7 +29,6 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
-
           <Route exact path="/TodayTab">
             <Tab1 />
           </Route>
@@ -47,12 +38,10 @@ const App: React.FC = () => (
           <Route path="/HistoryTab">
             <Tab3 />
           </Route>
-          
-          <Route exact path="/">
-            <Redirect to="/TodayTab" />
-          </Route>
+
+          <Redirect exact path="/" to="/TodayTab" />
         </IonRouterOutlet>
-        
+
         <IonTabBar slot="bottom">
           <IonTabButton tab="tab1" href="/TodayTab">
             <IonLabel>Today</IonLabel>
@@ -64,11 +53,9 @@ const App: React.FC = () => (
             <IonLabel>History</IonLabel>
           </IonTabButton>
         </IonTabBar>
-
       </IonTabs>
     </IonReactRouter>
   </IonApp>
 );
 
 export default App;
-//<IonIcon icon={triangle} />

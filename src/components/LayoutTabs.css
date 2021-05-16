@@ -9,7 +9,7 @@
 
 .leaflet-container {  
     width: 100%;
-    height: 100%;  
+    height: 78%;  
     margin-top: 58px;
 }
 
@@ -88,4 +88,24 @@ body, html, .container {
   margin: 10px;
 }
 
+.space {
+  padding-left: 3%;
+}
+
 /*End handling request detail*/
+
+/* Start positioning buttons map */
+
+.position-buttons {
+  position: absolute;
+  top: 34%;
+  right: 0;
+  z-index: 400;
+}
+
+
+.btn-location-map{
+  right: 4%;
+}
+
+/* End position buttons map */
