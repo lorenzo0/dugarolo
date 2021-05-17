@@ -1,0 +1,16 @@
+.leaflet-container {  
+    width: 100%;
+    height: 91%;
+    margin-top: 0;
+}
+
+/* Start positioning buttons map */
+
+.position-buttons-extended {
+    position: absolute;
+    bottom: 11%;
+    right: 0;
+    z-index: 400;
+  }
+  
+  /* End position buttons map */

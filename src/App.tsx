@@ -1,9 +1,10 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Tab1 from './tabs/Today/TodayTab';
-import Tab2 from './tabs/Tomorrow/TomorrowTab';
-import Tab3 from './tabs/History/HistoryTab';
+import TodayTab from './tabs/Today/TodayTab';
+import TomorrowTab from './tabs/Tomorrow/TomorrowTab';
+import HistoryTab from './tabs/History/HistoryTab';
+import MapTab from './tabs/Map/MapTab'
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -23,6 +24,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import FullMap from './components/map/fullMap';
 
 const App: React.FC = () => (
   <IonApp>
@@ -30,13 +32,13 @@ const App: React.FC = () => (
       <IonTabs>
         <IonRouterOutlet>
           <Route exact path="/TodayTab">
-            <Tab1 />
+            <TodayTab />
           </Route>
           <Route exact path="/TomorrowTab">
-            <Tab2 />
+            <TomorrowTab />
           </Route>
           <Route path="/HistoryTab">
-            <Tab3 />
+            <HistoryTab />
           </Route>
 
           <Redirect exact path="/" to="/TodayTab" />

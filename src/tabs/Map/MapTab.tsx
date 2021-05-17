@@ -1,25 +1,26 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import LayoutTabs from '../../components/LayoutTabs';
-import './TomorrowTab.css';
+import FullMap from '../../components/map/fullMap';
 
-const TomorrowTab: React.FC = () => {
+const MapTab = ({farms}) => {
+  console.log(farms[0])
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Tomorrow's activities</IonTitle>
+          <IonTitle>Map</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Tab 2</IonTitle>
+            <IonTitle size="large">Map</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <LayoutTabs name="Tomorrow"/>
+        <FullMap farms={farms}/>
       </IonContent>
     </IonPage>
   );
 };
 
-export default TomorrowTab;
+export default MapTab;
