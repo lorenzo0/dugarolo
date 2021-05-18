@@ -148,6 +148,8 @@ export default function CardLoader({ name, map }: ContainerProps): JSX.Element {
   }
 
   function onPressEvent(item) {
+    console.log(item);
+    
     setItemDetails(item);
     setDetailsClicked(true);
 

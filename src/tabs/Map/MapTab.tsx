@@ -1,9 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import LayoutTabs from '../../components/LayoutTabs';
 import FullMap from '../../components/map/fullMap';
 
-const MapTab = ({farms}) => {
-  console.log(farms[0])
+export default function MapTab(farms): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
@@ -17,10 +15,8 @@ const MapTab = ({farms}) => {
             <IonTitle size="large">Map</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <FullMap farms={farms}/>
+        <FullMap farms={farms} />
       </IonContent>
     </IonPage>
   );
-};
-
-export default MapTab;
+}

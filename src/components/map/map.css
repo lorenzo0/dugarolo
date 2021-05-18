@@ -1,0 +1,11 @@
+.loading-icon-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 88%;
+    margin-top: 58px;
+}
+
+.loading-icon {
+    height: 20vh;
+}

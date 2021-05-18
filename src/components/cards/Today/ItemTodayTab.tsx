@@ -47,7 +47,7 @@ const ItemTodayTab: React.FC<TodayObj> = ({id, name, canal_name, farm_name, irri
           </Avatar>
         }
           
-        title = {canal_name}
+        title = {name}
         subheader = {finalStr}
         onClick={onPressEvent}
       />

@@ -2,7 +2,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import LayoutTabs from '../../components/LayoutTabs';
 import './TomorrowTab.css';
 
-const TomorrowTab: React.FC = () => {
+export default function TomorrowTab(): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
@@ -13,13 +13,11 @@ const TomorrowTab: React.FC = () => {
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Tab 2</IonTitle>
+            <IonTitle size="large">Tomorrow</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <LayoutTabs name="Tomorrow"/>
+        <LayoutTabs name="Tomorrow" />
       </IonContent>
     </IonPage>
   );
-};
-
-export default TomorrowTab;
+}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet/dist/leaflet.js';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
 import { Button } from '@material-ui/core';
@@ -23,7 +24,10 @@ function MapView({}) {
   const purpleOptions = { color: 'purple' };
 
   useEffect(() => {
-    if (map != null) mapInstance = map;
+    if (map != null) {
+      mapInstance = map;
+      map.invalidateSize();
+    }
 
     if (!isLoaded) {
       fetch(
@@ -56,8 +60,8 @@ function MapView({}) {
       })
       .join('\n');
 
-    setIsLoaded(true);
     setFarms(tmpFarms);
+    setIsLoaded(true);
     tmpFarms = [];
   }
 

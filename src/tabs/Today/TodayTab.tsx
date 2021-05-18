@@ -2,7 +2,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import LayoutTabs from '../../components/LayoutTabs';
 import './TodayTab.css';
 
-const TodayTab = () => {
+export default function TodayTab(): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
@@ -20,6 +20,4 @@ const TodayTab = () => {
       </IonContent>
     </IonPage>
   );
-};
-
-export default TodayTab;
+}

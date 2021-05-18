@@ -7,6 +7,7 @@ interface TodayObj {
 }
 
 const DetailsTab: React.FC<TodayObj> = ({ ObjectDetails, BackEvent }) => {
+  
   return (
     <div>
       <div className="row">
@@ -28,7 +29,7 @@ const DetailsTab: React.FC<TodayObj> = ({ ObjectDetails, BackEvent }) => {
           <div className="title">Username </div>
         </div>
         <div className="column_2">
-          <div className="value">{ObjectDetails.username}</div>
+          <div className="value">{ObjectDetails.name}</div>
         </div>
       </div>
 

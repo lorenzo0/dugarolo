@@ -4,7 +4,6 @@ import { IonReactRouter } from '@ionic/react-router';
 import TodayTab from './tabs/Today/TodayTab';
 import TomorrowTab from './tabs/Tomorrow/TomorrowTab';
 import HistoryTab from './tabs/History/HistoryTab';
-import MapTab from './tabs/Map/MapTab'
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -24,7 +23,6 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import FullMap from './components/map/fullMap';
 
 const App: React.FC = () => (
   <IonApp>
@@ -37,7 +35,7 @@ const App: React.FC = () => (
           <Route exact path="/TomorrowTab">
             <TomorrowTab />
           </Route>
-          <Route path="/HistoryTab">
+          <Route exact path="/HistoryTab">
             <HistoryTab />
           </Route>
 
