@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import FullMap from '../../components/map/fullMap';
+import FullMap from '../../components/maps/full/fullMap';
 
-export default function MapTab(farms): JSX.Element {
+export default function MapTab({ farms }): JSX.Element {
   return (
     <IonPage>
       <IonHeader>

@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
 import { Button } from '@material-ui/core';
-import TodayTab from '../../tabs/Today/TodayTab';
+import TodayTab from '../../../tabs/Today/TodayTab';
 import './fullMap.css';
 
 const zoom = 13;

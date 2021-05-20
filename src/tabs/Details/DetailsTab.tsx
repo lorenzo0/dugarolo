@@ -6,8 +6,7 @@ interface TodayObj {
   BackEvent: any;
 }
 
-const DetailsTab: React.FC<TodayObj> = ({ ObjectDetails, BackEvent }) => {
-  
+export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.Element {
   return (
     <div>
       <div className="row">
@@ -43,6 +42,4 @@ const DetailsTab: React.FC<TodayObj> = ({ ObjectDetails, BackEvent }) => {
       </div>
     </div>
   );
-};
-
-export default DetailsTab;
+}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './LayoutTabs.css';
 import CardLoader from '../AssetLoader/CardLoader';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import MapView, { onClick } from './map/map';
+import MapView, { onClick } from './maps/half/halfMap';
 import DateUtils from '@date-io/dayjs';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 
@@ -10,11 +10,7 @@ export default function LayoutTabs({ name }) {
   const [from, setFrom] = useState<MaterialUiPickersDate>();
   const [to, setTo] = useState<MaterialUiPickersDate>();
 
-  function moveMap(newPosition) {
-    onClick(newPosition);
-  }
-
-  const style = {
+  const datepickerStyle = {
     background: '#ffffff',
     padding: '1px 0 1px 0',
   };
@@ -33,7 +29,7 @@ export default function LayoutTabs({ name }) {
             label="Da"
             disableFuture
             autoOk
-            style={style}
+            style={datepickerStyle}
           />
           <span className="space" />
           <DatePicker
@@ -43,12 +39,12 @@ export default function LayoutTabs({ name }) {
             label="A"
             disableFuture
             autoOk
-            style={style}
+            style={datepickerStyle}
           />
         </MuiPickersUtilsProvider>
       )}
       <div className="bottom_div">
-        <CardLoader name={name} map={moveMap} />
+        <CardLoader name={name} gotoLocation={onClick} />
       </div>
     </div>
   );

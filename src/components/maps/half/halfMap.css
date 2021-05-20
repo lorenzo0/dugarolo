@@ -1,0 +1,32 @@
+.leaflet-container {
+  width: 100%;
+  height: 78%;
+  margin-top: 58px;
+}
+
+/* Start positioning buttons map */
+
+.position-buttons {
+  position: absolute;
+  top: 34%;
+  right: 0;
+  z-index: 400;
+}
+
+.btn-location-map {
+  right: 4%;
+}
+
+/* End position buttons map */
+
+.loading-icon-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 88%;
+  margin-top: 58px;
+}
+
+.loading-icon {
+  height: 20vh;
+}

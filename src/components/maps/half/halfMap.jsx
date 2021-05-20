@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet/dist/leaflet.js';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
 import { Button } from '@material-ui/core';
-import MapTab from '../../tabs/Map/MapTab';
-import '../LayoutTabs.css';
+import MapTab from '../../../tabs/Map/MapTab';
+import loadingGif from '../../../assets/loading.gif';
+import './halfMap.css';
 
 const zoom = 13;
 let mapInstance;
@@ -15,18 +15,16 @@ export function onClick(newPosition) {
   mapInstance.flyTo(newPosition, zoom);
 }
 
-function MapView({}) {
+export default function MapView() {
   const [map, setMap] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [extendedMap, setExtendedMap] = useState(false);
   const [farms, setFarms] = useState([]);
-  let tmpFarms = [];
   const purpleOptions = { color: 'purple' };
 
   useEffect(() => {
     if (map != null) {
       mapInstance = map;
-      map.invalidateSize();
     }
 
     if (!isLoaded) {
@@ -36,33 +34,27 @@ function MapView({}) {
         .then(res => res.json())
         .then(json => loadFarms(json));
     }
-  }, [isLoaded]);
+  }, [isLoaded, map]);
 
   function loadLocationMap() {
     map.locate({
       setView: true,
     });
 
-    //map.on('click', onUserLocation);
     map.on({
       click: onUserLocation,
     });
   }
 
   function loadFarms(items) {
-    items
-      .map(payload => {
-        return payload.fields
-          .map(fields => {
-            tmpFarms.push({ id: payload.name, field: fields });
-          })
-          .join('\n');
-      })
-      .join('\n');
+    let tmpFarms = [];
+
+    items.map(payload =>
+      payload.fields.map(fields => tmpFarms.push({ id: payload.name, field: fields })).join('\n')
+    );
 
     setFarms(tmpFarms);
     setIsLoaded(true);
-    tmpFarms = [];
   }
 
   function onUserLocation(event) {
@@ -70,42 +62,39 @@ function MapView({}) {
     const accuracy = event.accuracy;
     const circle = L.circle(latlng, accuracy);
 
-    console.log(latlng);
+    console.log('Adding circle to: ' + latlng);
     circle.addTo(map);
   }
 
   return !extendedMap ? (
-    <>
-      <MapContainer center={[44.7016081, 10.5682283]} zoom={zoom} whenCreated={setMap}>
-        <TileLayer
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors/>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+    isLoaded ? (
+      <>
+        <MapContainer center={[44.7016081, 10.5682283]} zoom={zoom} whenCreated={setMap}>
+          <TileLayer
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors/>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {farms.map(farm => (
+            <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
+          ))}
+        </MapContainer>
 
-        {farms.map(farm => (
-          <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
-        ))}
-      </MapContainer>
-
-      <div className="position-buttons">
-        <Button
-          size="small"
-          startIcon={<CropFree />}
-          onClick={() => {
-            setExtendedMap(true);
-          }}
-        />
-        <Button
-          size="small"
-          className="btn-location-map"
-          startIcon={<MyLocation />}
-          onClick={loadLocationMap}
-        />
+        <div className="position-buttons">
+          <Button size="small" startIcon={<CropFree />} onClick={() => setExtendedMap(true)} />
+          <Button
+            size="small"
+            className="btn-location-map"
+            startIcon={<MyLocation />}
+            onClick={loadLocationMap}
+          />
+        </div>
+      </>
+    ) : (
+      <div className="loading-icon-div">
+        <img className="loading-icon" src={loadingGif} alt="loading" />
       </div>
-    </>
+    )
   ) : (
     <MapTab farms={farms} />
   );
 }
-
-export default MapView;

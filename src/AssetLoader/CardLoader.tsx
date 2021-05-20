@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import TodayCard from '../components/cards/Today/ItemTodayTab';
 import TomorrowCard from '../components/cards/Tomorrow/ItemTomorrowTab';
+import HistoryCard from '../components/cards/History/ItemHistoryTab';
 import DetailsTab from '../tabs/Details/DetailsTab';
 import { List } from '@material-ui/core';
 
 interface ContainerProps {
   name: string;
-  map: any;
+  gotoLocation: (newLocation) => void;
 }
 
-export default function CardLoader({ name, map }: ContainerProps): JSX.Element {
+export default function CardLoader({ name, gotoLocation }: ContainerProps): JSX.Element {
   const [jsonReq, setJsonReq] = React.useState<any[]>([]);
   const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
 
@@ -58,7 +59,7 @@ export default function CardLoader({ name, map }: ContainerProps): JSX.Element {
           active={false}
           delEvent={() => deleteEvent(item.id, 'Today')}
           onPressEvent={() => onPressEvent(item)}
-          onLocationFieldEvent={() => moveToLocation([40, 2])}
+          onLocationFieldEvent={() => gotoLocation([40, 2])}
         />
       ));
   }
@@ -89,16 +90,19 @@ export default function CardLoader({ name, map }: ContainerProps): JSX.Element {
     return jsonReq
       .filter(item => item.status !== 'deleted')
       .map(item => (
-        <TomorrowCard
-          key={item.id}
+        <HistoryCard
           id={item.id}
           name={item.name}
-          farm_name={item.username}
-          irrigation_time={item.email}
-          canal_name={item.address.street}
-          duration_time={item.address.suite}
-          acceptEvent={() => acceptEventTomorrow(item.id)}
-          delEvent={() => deleteEvent(item.id, 'Tomorrow')}
+          datetime={item.datetime}
+          status={item.status}
+          waterVolume={item.waterVolume}
+          field={item.field}
+          message={item.message}
+          channel={item.channel}
+          type={item.type}
+          nameChannel={item.nameChannel}
+          onPressEvent={() => onPressEvent(item)}
+          onLocationEvent={() => gotoLocation([40, 2])}
         />
       ));
   }
@@ -117,7 +121,6 @@ export default function CardLoader({ name, map }: ContainerProps): JSX.Element {
 
           if (tabName === 'Today') refreshRequests('Today');
           else if (tabName === 'Tomorrow') refreshRequests('Tomorrow');
-          else if (tabName === 'History') refreshRequests('History');
         }
       })
       .then(() => console.log(`Deleted: ${id}`));
@@ -138,26 +141,14 @@ export default function CardLoader({ name, map }: ContainerProps): JSX.Element {
         .then(json => setJsonReq(json))
         .then(() => setCardList(loadTomorrow()))
         .then(() => setIsLoaded(true));
-    } else if (tabName === 'History') {
-      fetch('https://jsonplaceholder.typicode.com/users')
-        .then(res => res.json())
-        .then(json => setJsonReq(json))
-        .then(() => setCardList(loadHistory()))
-        .then(() => setIsLoaded(true));
     }
   }
 
   function onPressEvent(item) {
-    console.log(item);
-    
     setItemDetails(item);
     setDetailsClicked(true);
 
     console.log(`Clicked: ${item.id}`);
-  }
-
-  function moveToLocation(newLocation) {
-    map(newLocation);
   }
 
   /* Accepting event for tomorrow tab */
