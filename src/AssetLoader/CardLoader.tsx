@@ -5,88 +5,167 @@ import HistoryCard from '../components/cards/History/ItemHistoryTab';
 import DetailsTab from '../tabs/Details/DetailsTab';
 import { List } from '@material-ui/core';
 
+const API = [
+  {
+    id: 1,
+    name: 'Name 1',
+    username: 'Name 1',
+    dateTime: '2021-05-20',
+    status: 'Accepted',
+    waterVolume: 10,
+    field: 'field',
+    message: 'message',
+    channel: 'Channel',
+    type: 'Criteria',
+    nameChannel: 'Fosfondo',
+    dugarolo: 1,
+  },
+  {
+    id: 2,
+    name: 'Name 2',
+    username: 'Name 2',
+    dateTime: '2021-05-21',
+    status: 'Accepted',
+    waterVolume: '15',
+    field: 'field',
+    message: 'message',
+    channel: 'Channel',
+    type: 'Criteria',
+    nameChannel: 'Fosfondo',
+    dugarolo: 2,
+  },
+  {
+    id: 3,
+    name: 'Name 3',
+    username: 'Name 3',
+    dateTime: '2021-05-20',
+    status: 'Accepted',
+    waterVolume: '10',
+    field: 'field',
+    message: 'message',
+    channel: 'Channel',
+    type: 'Criteria',
+    nameChannel: 'Fosfondo',
+    dugarolo: 3,
+  },
+  {
+    id: 4,
+    name: 'Name 4',
+    username: 'Name 4',
+    dateTime: '2021-05-21',
+    status: 'Accepted',
+    waterVolume: '15',
+    field: 'field',
+    message: 'message',
+    channel: 'Channel',
+    type: 'Criteria',
+    nameChannel: 'Fosfondo',
+    dugarolo: 3,
+  },
+  {
+    id: 5,
+    name: 'Name 5',
+    username: 'Name 5',
+    dateTime: '2021-05-20',
+    status: 'Accepted',
+    waterVolume: '10',
+    field: 'field',
+    message: 'message',
+    channel: 'Channel',
+    type: 'Criteria',
+    nameChannel: 'Fosfondo',
+    dugarolo: 3,
+  },
+];
+
 interface ContainerProps {
   name: string;
   gotoLocation: (newLocation) => void;
 }
 
 export default function CardLoader({ name, gotoLocation }: ContainerProps): JSX.Element {
-  const [jsonReq, setJsonReq] = React.useState<any[]>([]);
+
   const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
-
   const [cardList, setCardList] = React.useState<any[]>([]);
-
   const [detailsClicked, setDetailsClicked] = React.useState(false);
   const [itemDetails, setItemDetails] = useState<any>();
 
   /* isLoaded is not set false in the first time */
   useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/users')
+    loadCards(API);
+    setIsLoaded(true);
+
+    /* fetch('https://jsonplaceholder.typicode.com/users')
       .then(res => res.json())
       .then(json => setJsonReq(json))
       .then(() => loadCards())
-      .then(() => setIsLoaded(true));
+      .then(() => setIsLoaded(true)); */
   }, [isLoaded]);
 
-  function loadCards() {
+  function loadCards(jsonReq) {
+    console.log(`Loading ${name} cards`);
+
     switch (name) {
       case 'Today':
-        setCardList(loadToday());
+      case 'Schedule':
+        setCardList(loadToday(jsonReq));
         break;
       case 'Tomorrow':
-        setCardList(loadTomorrow());
+        setCardList(loadTomorrow(jsonReq));
         break;
       case 'History':
-        setCardList(loadHistory());
+        setCardList(loadHistory(jsonReq));
         break;
     }
   }
 
-  function loadToday(): JSX.Element[] {
-    console.log("Loading Today's cards");
-
+  function loadToday(jsonReq): JSX.Element[] {
     return jsonReq
-      .filter(item => item.status !== 'deleted')
+      .filter(item => item.status !== 'Deleted')
       .map(item => (
         <TodayCard
           key={item.id}
           id={item.id}
           name={item.name}
-          farm_name={item.username}
-          irrigation_time={item.email}
-          canal_name={item.address.street}
-          duration_time={item.address.suite}
-          active={false}
-          delEvent={() => deleteEvent(item.id, 'Today')}
+          datetime={item.dateTime}
+          status={item.status}
+          waterVolume={item.waterVolume}
+          field={item.field}
+          message={item.message}
+          channel={item.channel}
+          type={item.type}
+          nameChannel={item.nameChannel}
+          dugarolo={item.dugarolo}
           onPressEvent={() => onPressEvent(item)}
-          onLocationFieldEvent={() => gotoLocation([40, 2])}
+          onLocationEvent={() => gotoLocation([40, 2])}
+          onDeleteEvent={() => deleteEvent(item.id, 'Today')}
         />
       ));
   }
 
-  function loadTomorrow(): JSX.Element[] {
-    console.log("Loading Tomorrow's cards");
-
+  //const ItemTomorrowTab: React.FC<TomorrowObj> = ({id, name, waterVolume, field, nameChannel, type, startTime, durationTime, dugarolo, acceptEvent, delEvent }) => {
+  function loadTomorrow(jsonReq): JSX.Element[] {
     return jsonReq
       .filter(item => item.status !== 'deleted')
       .map(item => (
         <TomorrowCard
           key={item.id}
           id={item.id}
-          name={item.name}
-          farm_name={item.username}
-          irrigation_time={item.email}
-          canal_name={item.address.street}
-          duration_time={item.address.suite}
-          acceptEvent={() => acceptEventTomorrow(item.id)}
+          waterVolume={item.waterVolume}
+          field={item.field}
+          nameChannel={item.nameChannel}
+          type={item.type}
+          startTime={item.type}
+          durationTime={item.type}
+          dugarolo={item.dugarolo}
+          message={item.message}
+          acceptEvent={() => acceptEventTomorrow(jsonReq, item.id)}
           delEvent={() => deleteEvent(item.id, 'Tomorrow')}
         />
       ));
   }
 
-  function loadHistory(): JSX.Element[] {
-    console.log("Loading History's cards");
-
+  function loadHistory(jsonReq): JSX.Element[] {
     return jsonReq
       .filter(item => item.status !== 'deleted')
       .map(item => (
@@ -132,14 +211,12 @@ export default function CardLoader({ name, gotoLocation }: ContainerProps): JSX.
     if (tabName === 'Today') {
       fetch('https://jsonplaceholder.typicode.com/users')
         .then(res => res.json())
-        .then(json => setJsonReq(json))
-        .then(() => setCardList(loadToday()))
+        .then(json => setCardList(loadToday(json)))
         .then(() => setIsLoaded(true));
     } else if (tabName === 'Tomorrow') {
       fetch('https://jsonplaceholder.typicode.com/users')
         .then(res => res.json())
-        .then(json => setJsonReq(json))
-        .then(() => setCardList(loadTomorrow()))
+        .then(json => setCardList(loadTomorrow(json)))
         .then(() => setIsLoaded(true));
     }
   }
@@ -152,7 +229,7 @@ export default function CardLoader({ name, gotoLocation }: ContainerProps): JSX.
   }
 
   /* Accepting event for tomorrow tab */
-  function acceptEventTomorrow(id: string) {
+  function acceptEventTomorrow(jsonReq, id: string) {
     fetch('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',
       body: JSON.stringify({ message: 'Accepted request', status: 'Accepted' }),
@@ -161,7 +238,7 @@ export default function CardLoader({ name, gotoLocation }: ContainerProps): JSX.
       },
     })
       .then(() => setIsLoaded(true))
-      .then(() => loadTomorrow());
+      .then(() => loadTomorrow(jsonReq));
   }
 
   function goToDetails() {

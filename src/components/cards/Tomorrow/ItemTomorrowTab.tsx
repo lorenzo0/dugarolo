@@ -5,18 +5,21 @@ import React, {useState} from 'react';
 
 interface TomorrowObj {
   id: string;
-  name: string;
-  canal_name: string;
-  farm_name: string;
-  irrigation_time: string;
-  duration_time: string;
-  acceptEvent: any;
-  delEvent: any;
+  waterVolume: string;
+  field: string;
+  nameChannel: string;
+  startTime : string;
+  durationTime : string;
+  type: string;
+  dugarolo: string;
+  message: string;
+  acceptEvent: () => void;
+  delEvent: () => void;
 }
 
-const ItemTomorrowTab: React.FC<TomorrowObj> = ({id, name, canal_name, farm_name, irrigation_time, duration_time, acceptEvent, delEvent }) => {
+const ItemTomorrowTab: React.FC<TomorrowObj> = ({id, waterVolume, field, nameChannel, type, startTime, durationTime, dugarolo, message, acceptEvent, delEvent }) => {
 
-  var finalStr = "Start at: " + irrigation_time + " - Last for: " + duration_time;
+  var finalStr = "Start at: " + startTime + " - Last for: " + durationTime;
 
   return(
     <Card variant="outlined" className='item_req'>
@@ -27,8 +30,8 @@ const ItemTomorrowTab: React.FC<TomorrowObj> = ({id, name, canal_name, farm_name
           </Avatar>
         }
           
-        title = {canal_name}
-        subheader = {finalStr}
+        title = {nameChannel}
+        subheader = {field}
       />
       
       <div className="flex-row-container">

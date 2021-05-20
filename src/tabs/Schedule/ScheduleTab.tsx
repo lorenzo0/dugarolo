@@ -1,21 +1,21 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import FullMap from '../../components/maps/full/fullMap';
+import LayoutTabs from '../../components/LayoutTabs';
 
-export default function MapTab({ farms, weirs, connections }): JSX.Element {
+export default function ScheduleTab(): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Map</IonTitle>
+          <IonTitle>Schedule Tab</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Map</IonTitle>
+            <IonTitle size="large">Today schedule</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <FullMap farms={farms} weirs={weirs} connections={connections} />
+        <LayoutTabs name="Schedule" />
       </IonContent>
     </IonPage>
   );

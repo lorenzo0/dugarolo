@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, Circle, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
@@ -9,13 +9,12 @@ import './fullMap.css';
 
 const zoom = 13;
 
-function FullMap({ farms }) {
+function FullMap({ farms, weirs, connections }) {
   const [map, setMap] = useState(null);
   const [extendedMap, setExtendedMap] = useState(true);
   const purpleOptions = { color: 'purple' };
 
   function loadLocationMap() {
-    console.log('Ci sono');
     map.locate({
       setView: true,
     });
@@ -41,6 +40,15 @@ function FullMap({ farms }) {
         {farms.map(farm => (
           <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
         ))}
+
+        {weirs.map(object => (
+          <Circle center={object.weir.location} radius={200} />
+        ))}
+
+        {connections.map(object => (
+          <Polyline color="red" positions={[[object.connection.start.lan, object.connection.start.long],
+            [object.connection.end.lan, object.connection.end.long]]} />
+        ))}       
       </MapContainer>
 
       <div className="position-buttons-extended">

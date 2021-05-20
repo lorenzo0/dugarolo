@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, Circle, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
@@ -19,7 +19,11 @@ export default function MapView() {
   const [map, setMap] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [extendedMap, setExtendedMap] = useState(false);
+
   const [farms, setFarms] = useState([]);
+  const [weirs, setWeirs] = useState([]);
+  const [connections, setConnections] = useState([]);
+
   const purpleOptions = { color: 'purple' };
 
   useEffect(() => {
@@ -28,11 +32,17 @@ export default function MapView() {
     }
 
     if (!isLoaded) {
-      fetch(
-        'http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/WDMInspector/%7Bispector%7D/assigned_farms'
-      )
+      fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/WDMInspector/%7Bispector%7D/assigned_farms')
         .then(res => res.json())
         .then(json => loadFarms(json));
+
+      fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/wdn/nodes')
+        .then(res => res.json())
+        .then(json => loadWeirs(json));
+
+      fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/wdn/connections')
+      .then(res => res.json())
+      .then(json => loadConnection(json));
     }
   }, [isLoaded, map]);
 
@@ -54,7 +64,40 @@ export default function MapView() {
     );
 
     setFarms(tmpFarms);
+    //delete x exists, but it has to be understood
+    tmpFarms = null;
+  }
+
+  //{"type":"Weir","id":"http://swamp-project.org/ns#Gate2","name":"Paratoia 2","location":{"lat":44.7745341766,"lon":10.7233746178}}
+
+  function loadWeirs(items) {
+    let tmpWeirs = [];
+
+    items.map(
+      (weir => 
+        weir.type === 'Weir' ?
+          tmpWeirs.push({ id: weir.name, weir: weir })
+        : null
+      )
+    );
+
+    setWeirs(tmpWeirs);
+    tmpWeirs = null;
+  }
+
+  function loadConnection(items) {
+    let tmpConnection = [];
+
+    items.map(
+      (connection => 
+        tmpConnection.push({ id: connection.id, connection: connection, line: [[connection.start],[connection.end]]})
+      )
+    );
+
+    setConnections(tmpConnection);
     setIsLoaded(true);
+    console.log(isLoaded);
+    tmpConnection = null;
   }
 
   function onUserLocation(event) {
@@ -74,9 +117,20 @@ export default function MapView() {
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors/>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+
           {farms.map(farm => (
             <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
           ))}
+
+          {weirs.map(object => (
+            <Circle center={object.weir.location} radius={200} />
+          ))}
+
+          {connections.map(object => (
+            <Polyline color="red" positions={[[object.connection.start.lan, object.connection.start.long],
+              [object.connection.end.lan, object.connection.end.long]]} />
+          ))}   
+          
         </MapContainer>
 
         <div className="position-buttons">
@@ -95,6 +149,6 @@ export default function MapView() {
       </div>
     )
   ) : (
-    <MapTab farms={farms} />
+    <MapTab farms={farms, weirs, connections} />
   );
 }
