@@ -6,7 +6,7 @@ export default function TomorrowTab(): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+      <IonToolbar color="primary">
           <IonTitle>Tomorrow's activities</IonTitle>
         </IonToolbar>
       </IonHeader>

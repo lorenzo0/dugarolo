@@ -23,14 +23,13 @@
 }
 
 .bottom_div {
-  height: 60%;
-  max-height: 60%;
+  height: 47%;
+  max-height: 47%;
   width: 100%;
   margin: auto;
   text-align: center;
   color: black;
   overflow: scroll;
-  padding-bottom: 40px;
 }
 
 body,
@@ -90,8 +89,16 @@ html,
   margin: 10px;
 }
 
-.space {
+.space-left {
   padding-left: 3%;
+}
+
+.space-top {
+  margin: 10px;
+}
+
+.space-bottom {
+  margin: 10px;
 }
 
 /*End handling request detail*/

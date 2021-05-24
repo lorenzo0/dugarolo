@@ -9,14 +9,15 @@ import Menu from '@material-ui/core/Menu';
 import Button from '@material-ui/core/Button';
 import Fade from '@material-ui/core/Fade';
 import DugaroloLoader from '../AssetLoader/DugaroloLoader';
-import ScheduleTab from '../tabs/Schedule/ScheduleTab';
+import Alert from '@material-ui/lab/Alert'
 
 export default function LayoutTabs({ name }) {
   const [from, setFrom] = useState<MaterialUiPickersDate>();
   const [to, setTo] = useState<MaterialUiPickersDate>();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const [toSchedule, setToSchedule] = useState<Boolean>(false);
+  const [toSchedule, setToSchedule] = useState<boolean>(false);
+  const [chosenDugarolo, setChosenDugarolo] = useState<number>(-1);
 
   const datepickerStyle = {
     background: '#ffffff',
@@ -27,16 +28,14 @@ export default function LayoutTabs({ name }) {
     setAnchorEl(event.currentTarget);
   };
 
-  function handleClose() {
+  function handleClose(id: number) {
+    id === 7 ? setChosenDugarolo(-1) : setChosenDugarolo(id)
     setAnchorEl(null);
   }
 
-  function goToSchedule(){
-    setToSchedule(true);
-  }
-
-  function goBackToList(){
-    setToSchedule(false);
+  function toggleSchedule() {
+    setChosenDugarolo(-1);
+    setToSchedule(!toSchedule);
   }
 
   return (
@@ -44,6 +43,7 @@ export default function LayoutTabs({ name }) {
       <div className="top_div">
         <MapView />
       </div>
+      <div className="space-top"/>
       {name === 'History' ? (
         <MuiPickersUtilsProvider utils={DateUtils}>
           <DatePicker
@@ -55,7 +55,7 @@ export default function LayoutTabs({ name }) {
             autoOk
             style={datepickerStyle}
           />
-          <span className="space" />
+          <span className="space-left" />
           <DatePicker
             value={to}
             onChange={setTo}
@@ -66,12 +66,24 @@ export default function LayoutTabs({ name }) {
             style={datepickerStyle}
           />
         </MuiPickersUtilsProvider>
-      ) : (name === 'Schedule' || toSchedule) ? (
+      ) : toSchedule ? (
         <div>
-          <Button aria-controls="fade-menu" aria-haspopup="true" variant="contained" color="primary" onClick={goBackToList} style={{float:'left'}}>
+          <Button
+            aria-controls="fade-menu"
+            aria-haspopup="true"
+            variant="contained"
+            color="primary"
+            onClick={toggleSchedule}
+            style={{ float: 'left' }}>
             Back to the list
           </Button>
-          <Button aria-controls="fade-menu" aria-haspopup="true" variant="contained" color="primary" onClick={handleClick} style={{float:'right'}}>
+          <Button
+            aria-controls="fade-menu"
+            aria-haspopup="true"
+            variant="contained"
+            color="primary"
+            onClick={handleClick}
+            style={{ float: 'right' }}>
             Filter by name
           </Button>
           <Menu
@@ -79,7 +91,6 @@ export default function LayoutTabs({ name }) {
             anchorEl={anchorEl}
             keepMounted
             open={open}
-            onClose={handleClose}
             TransitionComponent={Fade}
             PaperProps={{
               style: {
@@ -92,13 +103,21 @@ export default function LayoutTabs({ name }) {
         </div>
       ) : name === 'Today' ? (
         <div>
-          <Button aria-controls="fade-menu" variant="contained" color="primary" aria-haspopup="true" onClick={goToSchedule}>
+          <Button
+            aria-controls="fade-menu"
+            variant="contained"
+            color="primary"
+            aria-haspopup="true"
+            onClick={toggleSchedule}>
             Today schedule
           </Button>
         </div>
+      ) : name === 'Tomorrow' ? (
+        <Alert severity="info">Accept or reject the requests available for tomorrow!</Alert>
       ) : null}
+      <div className="space-bottom"/>
       <div className="bottom_div">
-        <CardLoader name={name} gotoLocation={onClick} />
+        <CardLoader tabName={name} gotoLocation={onClick} chosenDugarolo={chosenDugarolo} />
       </div>
     </div>
   );

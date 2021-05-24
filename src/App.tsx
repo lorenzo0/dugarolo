@@ -42,7 +42,7 @@ const App: React.FC = () => (
           <Redirect exact path="/" to="/TodayTab" />
         </IonRouterOutlet>
 
-        <IonTabBar slot="bottom">
+        <IonTabBar slot="bottom" color="primary">
           <IonTabButton tab="tab1" href="/TodayTab">
             <IonLabel>Today</IonLabel>
           </IonTabButton>

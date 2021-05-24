@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Polygon, Circle, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, Circle, Polyline, Marker} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
@@ -7,6 +7,7 @@ import { Button } from '@material-ui/core';
 import MapTab from '../../../tabs/Map/MapTab';
 import loadingGif from '../../../assets/loading.gif';
 import './halfMap.css';
+import farmer from '../../../assets/farmer.jpg'
 
 const zoom = 13;
 let mapInstance;
@@ -32,17 +33,22 @@ export default function MapView() {
     }
 
     if (!isLoaded) {
-      fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/WDMInspector/%7Bispector%7D/assigned_farms')
+      fetch(
+        'http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/WDMInspector/%7Bispector%7D/assigned_farms'
+      )
         .then(res => res.json())
-        .then(json => loadFarms(json));
-
-      fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/wdn/nodes')
+        .then(json => {
+          loadFarms(json);
+          return fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/wdn/nodes');
+        })
         .then(res => res.json())
-        .then(json => loadWeirs(json));
-
-      fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/wdn/connections')
-      .then(res => res.json())
-      .then(json => loadConnection(json));
+        .then(json => {
+          loadWeirs(json);
+          return fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/wdn/connections');
+        })
+        .then(res => res.json())
+        .then(json => loadConnection(json))
+        .then(() => setIsLoaded(true));
     }
   }, [isLoaded, map]);
 
@@ -73,13 +79,7 @@ export default function MapView() {
   function loadWeirs(items) {
     let tmpWeirs = [];
 
-    items.map(
-      (weir => 
-        weir.type === 'Weir' ?
-          tmpWeirs.push({ id: weir.name, weir: weir })
-        : null
-      )
-    );
+    items.map(weir => (weir.type === 'Weir' ? tmpWeirs.push({ id: weir.name, weir: weir }) : null));
 
     setWeirs(tmpWeirs);
     tmpWeirs = null;
@@ -88,14 +88,15 @@ export default function MapView() {
   function loadConnection(items) {
     let tmpConnection = [];
 
-    items.map(
-      (connection => 
-        tmpConnection.push({ id: connection.id, connection: connection, line: [[connection.start],[connection.end]]})
-      )
+    items.map(connection =>
+      tmpConnection.push({
+        id: connection.id,
+        connection: connection,
+        line: [[connection.start], [connection.end]],
+      })
     );
 
     setConnections(tmpConnection);
-    setIsLoaded(true);
     console.log(isLoaded);
     tmpConnection = null;
   }
@@ -107,6 +108,10 @@ export default function MapView() {
 
     console.log('Adding circle to: ' + latlng);
     circle.addTo(map);
+  }
+
+  function toggleExtendedMap() {
+    setExtendedMap(!extendedMap);
   }
 
   return !extendedMap ? (
@@ -122,19 +127,23 @@ export default function MapView() {
             <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
           ))}
 
-          {weirs.map(object => (
+          {weirs.map(object => {
             <Circle center={object.weir.location} radius={200} />
-          ))}
+          })}
 
           {connections.map(object => (
-            <Polyline color="red" positions={[[object.connection.start.lan, object.connection.start.long],
-              [object.connection.end.lan, object.connection.end.long]]} />
-          ))}   
-          
+            <Polyline
+              color="blue"
+              positions={[
+                [object.connection.start.lan, object.connection.start.long],
+                [object.connection.end.lan, object.connection.end.long],
+              ]}
+            />
+          ))}
         </MapContainer>
 
         <div className="position-buttons">
-          <Button size="small" startIcon={<CropFree />} onClick={() => setExtendedMap(true)} />
+          <Button size="small" startIcon={<CropFree />} onClick={toggleExtendedMap} />
           <Button
             size="small"
             className="btn-location-map"
@@ -149,6 +158,11 @@ export default function MapView() {
       </div>
     )
   ) : (
-    <MapTab farms={farms, weirs, connections} />
+    <MapTab
+      farms={farms}
+      weirs={weirs}
+      connections={connections}
+      toggleExtendedMap={toggleExtendedMap}
+    />
   );
 }

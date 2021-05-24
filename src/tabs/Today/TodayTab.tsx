@@ -6,7 +6,7 @@ export default function TodayTab(): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary">
           <IonTitle>Today's activities</IonTitle>
         </IonToolbar>
       </IonHeader>

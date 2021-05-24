@@ -54,3 +54,8 @@
 .flex-row-item{
     flex-grow: 1;
 }
+
+.divider{
+    margin-left: 20px;
+    margin-right: 20px;
+}

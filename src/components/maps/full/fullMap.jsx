@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Polygon, Circle, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
 import { Button } from '@material-ui/core';
-import TodayTab from '../../../tabs/Today/TodayTab';
 import './fullMap.css';
 
 const zoom = 13;
 
-function FullMap({ farms, weirs, connections }) {
+export default function FullMap({ farms, weirs, connections, toggleExtendedMap }) {
   const [map, setMap] = useState(null);
-  const [extendedMap, setExtendedMap] = useState(true);
   const purpleOptions = { color: 'purple' };
+
+  useEffect(() => {
+    if (map) {
+      map.invalidateSize();
+    }
+  }, [map]);
 
   function loadLocationMap() {
     map.locate({
@@ -29,7 +33,7 @@ function FullMap({ farms, weirs, connections }) {
     circle.addTo(map);
   }
 
-  return extendedMap ? (
+  return (
     <>
       <MapContainer center={[44.7016081, 10.5682283]} zoom={zoom} whenCreated={setMap}>
         <TileLayer
@@ -46,13 +50,18 @@ function FullMap({ farms, weirs, connections }) {
         ))}
 
         {connections.map(object => (
-          <Polyline color="red" positions={[[object.connection.start.lan, object.connection.start.long],
-            [object.connection.end.lan, object.connection.end.long]]} />
-        ))}       
+          <Polyline
+            color="red"
+            positions={[
+              [object.connection.start.lan, object.connection.start.long],
+              [object.connection.end.lan, object.connection.end.long],
+            ]}
+          />
+        ))}
       </MapContainer>
 
       <div className="position-buttons-extended">
-        <Button size="small" startIcon={<CropFree />} onClick={() => setExtendedMap(false)} />
+        <Button size="small" startIcon={<CropFree />} onClick={toggleExtendedMap} />
         <Button
           size="small"
           className="btn-location-map"
@@ -61,7 +70,5 @@ function FullMap({ farms, weirs, connections }) {
         />
       </div>
     </>
-  ) : ( <TodayTab /> );
+  );
 }
-
-export default FullMap;

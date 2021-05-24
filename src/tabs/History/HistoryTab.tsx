@@ -6,7 +6,7 @@ export default function HistoryTab(): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+      <IonToolbar color="primary">
           <IonTitle>History</IonTitle>
         </IonToolbar>
       </IonHeader>
