@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Polygon, Circle, Polyline, Marker} from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, Circle, Polyline, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
-import { Button } from '@material-ui/core';
+import { Button, Snackbar } from '@material-ui/core';
 import MapTab from '../../../tabs/Map/MapTab';
 import loadingGif from '../../../assets/loading.gif';
+import farmer from '../../../assets/farmer.jpg';
 import './halfMap.css';
-import farmer from '../../../assets/farmer.jpg'
 
 const zoom = 13;
 let mapInstance;
@@ -24,6 +24,7 @@ export default function MapView() {
   const [farms, setFarms] = useState([]);
   const [weirs, setWeirs] = useState([]);
   const [connections, setConnections] = useState([]);
+  const [snackBarError, setSnackBarError] = useState(false);
 
   const purpleOptions = { color: 'purple' };
 
@@ -48,17 +49,14 @@ export default function MapView() {
         })
         .then(res => res.json())
         .then(json => loadConnection(json))
-        .then(() => setIsLoaded(true));
+        .then(() => setIsLoaded(true))
+        .catch(() => setSnackBarError(true));
     }
   }, [isLoaded, map]);
 
   function loadLocationMap() {
     map.locate({
       setView: true,
-    });
-
-    map.on({
-      click: onUserLocation,
     });
   }
 
@@ -97,72 +95,74 @@ export default function MapView() {
     );
 
     setConnections(tmpConnection);
-    console.log(isLoaded);
     tmpConnection = null;
-  }
-
-  function onUserLocation(event) {
-    const latlng = event.latlng;
-    const accuracy = event.accuracy;
-    const circle = L.circle(latlng, accuracy);
-
-    console.log('Adding circle to: ' + latlng);
-    circle.addTo(map);
   }
 
   function toggleExtendedMap() {
     setExtendedMap(!extendedMap);
   }
 
-  return !extendedMap ? (
-    isLoaded ? (
-      <>
-        <MapContainer center={[44.7016081, 10.5682283]} zoom={zoom} whenCreated={setMap}>
-          <TileLayer
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors/>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
-          {farms.map(farm => (
-            <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
-          ))}
-
-          {weirs.map(object => {
-            <Circle center={object.weir.location} radius={200} />
-          })}
-
-          {connections.map(object => (
-            <Polyline
-              color="blue"
-              positions={[
-                [object.connection.start.lan, object.connection.start.long],
-                [object.connection.end.lan, object.connection.end.long],
-              ]}
+  return !snackBarError ? (
+    !extendedMap ? (
+      isLoaded ? (
+        <>
+          <MapContainer center={[44.7016081, 10.5682283]} zoom={zoom} whenCreated={setMap}>
+            <TileLayer
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors/>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-          ))}
-        </MapContainer>
 
-        <div className="position-buttons">
-          <Button size="small" startIcon={<CropFree />} onClick={toggleExtendedMap} />
-          <Button
-            size="small"
-            className="btn-location-map"
-            startIcon={<MyLocation />}
-            onClick={loadLocationMap}
-          />
+            {farms.map(farm => (
+              <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
+            ))}
+
+            {weirs.map(object => {
+              <Circle center={object.weir.location} radius={200} />;
+            })}
+
+            {connections.map(object => (
+              <Polyline
+                color="blue"
+                positions={[
+                  [object.connection.start.lan, object.connection.start.long],
+                  [object.connection.end.lan, object.connection.end.long],
+                ]}
+              />
+            ))}
+          </MapContainer>
+
+          <div className="position-buttons">
+            <Button size="small" startIcon={<CropFree />} onClick={toggleExtendedMap} />
+            <Button
+              size="small"
+              className="btn-location-map"
+              startIcon={<MyLocation />}
+              onClick={loadLocationMap}
+            />
+          </div>
+        </>
+      ) : (
+        <div className="loading-icon-div">
+          <img className="loading-icon" src={loadingGif} alt="loading" />
         </div>
-      </>
+      )
     ) : (
-      <div className="loading-icon-div">
-        <img className="loading-icon" src={loadingGif} alt="loading" />
-      </div>
+      <MapTab
+        farms={farms}
+        weirs={weirs}
+        connections={connections}
+        toggleExtendedMap={toggleExtendedMap}
+      />
     )
   ) : (
-    <MapTab
-      farms={farms}
-      weirs={weirs}
-      connections={connections}
-      toggleExtendedMap={toggleExtendedMap}
+    <Snackbar
+      className="snackbar"
+      message="Error while retrieving data"
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      open={snackBarError}
     />
   );
 }

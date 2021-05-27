@@ -30,3 +30,7 @@
 .loading-icon {
   height: 20vh;
 }
+
+.snackbar {
+  margin-top: 60px;
+}

@@ -9,7 +9,7 @@ import Menu from '@material-ui/core/Menu';
 import Button from '@material-ui/core/Button';
 import Fade from '@material-ui/core/Fade';
 import DugaroloLoader from '../AssetLoader/DugaroloLoader';
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/lab/Alert';
 
 export default function LayoutTabs({ name }) {
   const [from, setFrom] = useState<MaterialUiPickersDate>();
@@ -21,7 +21,6 @@ export default function LayoutTabs({ name }) {
 
   const datepickerStyle = {
     background: '#ffffff',
-    padding: '1px 0 1px 0',
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -29,7 +28,7 @@ export default function LayoutTabs({ name }) {
   };
 
   function handleClose(id: number) {
-    id === 7 ? setChosenDugarolo(-1) : setChosenDugarolo(id)
+    id === 7 ? setChosenDugarolo(-1) : setChosenDugarolo(id);
     setAnchorEl(null);
   }
 
@@ -43,28 +42,29 @@ export default function LayoutTabs({ name }) {
       <div className="top_div">
         <MapView />
       </div>
-      <div className="space-top"/>
+      <div className="space-top" />
       {name === 'History' ? (
         <MuiPickersUtilsProvider utils={DateUtils}>
-          <DatePicker
-            value={from}
-            onChange={setFrom}
-            id="da"
-            label="Da"
-            disableFuture
-            autoOk
-            style={datepickerStyle}
-          />
-          <span className="space-left" />
-          <DatePicker
-            value={to}
-            onChange={setTo}
-            id="a"
-            label="A"
-            disableFuture
-            autoOk
-            style={datepickerStyle}
-          />
+          <div className="from">
+            <DatePicker
+              value={from}
+              onChange={setFrom}
+              id="da"
+              label="Da"
+              size="small"
+              style={datepickerStyle}
+            />
+          </div>
+          <div className="to">
+            <DatePicker
+              value={to}
+              onChange={setTo}
+              id="a"
+              label="A"
+              size="small"
+              style={datepickerStyle}
+            />
+          </div>
         </MuiPickersUtilsProvider>
       ) : toSchedule ? (
         <div>
@@ -115,9 +115,15 @@ export default function LayoutTabs({ name }) {
       ) : name === 'Tomorrow' ? (
         <Alert severity="info">Accept or reject the requests available for tomorrow!</Alert>
       ) : null}
-      <div className="space-bottom"/>
+      <div className="space-bottom" />
       <div className="bottom_div">
-        <CardLoader tabName={name} gotoLocation={onClick} chosenDugarolo={chosenDugarolo} />
+        <CardLoader
+          tabName={name}
+          gotoLocation={onClick}
+          chosenDugarolo={chosenDugarolo}
+          from={from}
+          to={to}
+        />
       </div>
     </div>
   );

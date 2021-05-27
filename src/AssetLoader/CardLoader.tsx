@@ -1,14 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import DetailsTab from '../tabs/Details/DetailsTab';
-import { List } from '@material-ui/core';
 import CardItem from '../components/cards/Cards';
+import { List, Snackbar } from '@material-ui/core';
+import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import Alert from '@material-ui/lab/Alert';
 
-const API = [
+interface CardProps {
+  id: number;
+  name: string;
+  username: string;
+  dateTime: string;
+  status: string;
+  waterVolume: number;
+  field: string;
+  message: string;
+  channel: string;
+  type: string;
+  nameChannel: string;
+  dugarolo: number;
+}
+
+const API: CardProps[] = [
   {
     id: 1,
-    name: 'Name 1',
+    name: '27-05',
     username: 'Name 1',
-    dateTime: '2021-05-20',
+    dateTime: '2021-05-27T07:38:56.096Z',
     status: 'Accepted',
     waterVolume: 10,
     field: 'field',
@@ -20,11 +37,11 @@ const API = [
   },
   {
     id: 2,
-    name: 'Name 2',
+    name: '28-05',
     username: 'Name 2',
-    dateTime: '2021-05-21',
+    dateTime: '2021-05-28T07:38:52.054Z',
     status: 'Accepted',
-    waterVolume: '15',
+    waterVolume: 15,
     field: 'field',
     message: 'message',
     channel: 'Channel',
@@ -34,11 +51,11 @@ const API = [
   },
   {
     id: 3,
-    name: 'Name 3',
+    name: '28-05',
     username: 'Name 3',
-    dateTime: '2021-05-20',
+    dateTime: '2021-05-28T08:38:56.096Z',
     status: 'Accepted',
-    waterVolume: '10',
+    waterVolume: 10,
     field: 'field',
     message: 'message',
     channel: 'Channel',
@@ -48,11 +65,11 @@ const API = [
   },
   {
     id: 4,
-    name: 'Name 4',
+    name: '29-05',
     username: 'Name 4',
-    dateTime: '2021-05-21',
+    dateTime: '2021-05-29T06:20:30.096Z',
     status: 'Accepted',
-    waterVolume: '15',
+    waterVolume: 15,
     field: 'field',
     message: 'message',
     channel: 'Channel',
@@ -62,63 +79,179 @@ const API = [
   },
   {
     id: 5,
-    name: 'Req5',
-    dateTime: '2021-05-20',
+    name: '30-05',
+    username: 'Name 5',
+    dateTime: '2021-05-30T06:20:30.095Z',
     status: 'Accepted',
-    waterVolume: 10,
-    startTime: '14:04:42',
-    duration: '4:30',
-    field: 'field' /* to change */,
+    waterVolume: 15,
+    field: 'field',
     message: 'message',
-    channel: 'nameChannel',
+    channel: 'Channel',
     type: 'Criteria',
-    dugarolo: 3,
+    nameChannel: 'Fosfondo',
+    dugarolo: 6,
+  },
+  {
+    id: 6,
+    name: '29-05',
+    username: 'Name 6',
+    dateTime: '2021-05-29T10:20:30.40Z',
+    status: 'Accepted',
+    waterVolume: 15,
+    field: 'field',
+    message: 'message',
+    channel: 'Channel',
+    type: 'Criteria',
+    nameChannel: 'Fosfondo',
+    dugarolo: 6,
   },
 ];
+
+export interface ParsedDateTime {
+  day: number;
+  month: number;
+  year: number;
+  hour: number;
+  minutes: number;
+  seconds: number;
+}
+
+function parseDate(rawDateTime: string): ParsedDateTime {
+  const tmpDateTime: string[] = rawDateTime.split('T');
+
+  const date = tmpDateTime[0].split('-');
+  const year: number = parseInt(date[0]);
+  const month: number = parseInt(date[1]);
+  const day: number = parseInt(date[2]);
+
+  const time = tmpDateTime[1].split(':');
+  const hour: number = parseInt(time[0]);
+  const minutes: number = parseInt(time[1]);
+  const seconds: number = parseFloat(time[2].substring(0, time[2].length - 1));
+
+  return { day: day, month: month, year: year, hour: hour, minutes: minutes, seconds: seconds };
+}
 
 interface ContainerProps {
   tabName: string;
   gotoLocation: (newLocation) => void;
   chosenDugarolo: number;
+  from?: MaterialUiPickersDate;
+  to?: MaterialUiPickersDate;
+}
+
+function compareDates(x: ParsedDateTime, y: MaterialUiPickersDate, from: boolean): boolean {
+  if (!y) return true;
+
+  if (x.year === y.year()) {
+    if (x.month === y.month() + 1) {
+      if (x.day === y.date()) {
+        if (from) return true;
+        return false;
+      }
+      return x.day < y.date() ? false : true;
+    }
+    return x.month < y.month() + 1 ? false : true;
+  }
+  return x.year < y.year() ? false : true;
 }
 
 export default function CardLoader({
   tabName,
   gotoLocation,
   chosenDugarolo,
+  from,
+  to,
 }: ContainerProps): JSX.Element {
   const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
   const [cardList, setCardList] = React.useState<any[]>([]);
   const [detailsClicked, setDetailsClicked] = React.useState(false);
   const [itemDetails, setItemDetails] = useState<any>();
+  const [snackBarError, setSnackBarError] = useState<boolean>(false);
 
   /* isLoaded is not set false in the first time */
   useEffect(() => {
     fetch('https://jsonplaceholder.typicode.com/users')
       .then(res => res.json())
       .then(json => loadCards(API))
-      .then(() => setIsLoaded(true));
-  }, [isLoaded, chosenDugarolo]);
+      .then(() => setIsLoaded(true))
+      .catch(() => setSnackBarError(true));
+  }, [isLoaded, chosenDugarolo, from, to]);
 
-  function loadCards(json) {
-    console.log(`Loading ${tabName} cards`);
+  function loadCards(json: CardProps[]) {
 
     setCardList(
       json
         .filter(item => item.status !== 'Deleted')
+        .filter(item => {
+          const currentDate = new Date();
+          const itemDate = parseDate(item.dateTime);
+
+          if (tabName === 'Today') {
+            if (
+              itemDate.day === currentDate.getDate() &&
+              itemDate.month === currentDate.getMonth() + 1
+            ) {
+              return true;
+            }
+            return false;
+          } else if (tabName === 'Tomorrow') {
+            if (
+              itemDate.day === currentDate.getDate() + 1 &&
+              itemDate.month === currentDate.getMonth() + 1
+            ) {
+              return true;
+            }
+            return false;
+          } else if (tabName === 'History') {
+            if (from && to) {
+              return compareDates(itemDate, from, true) && !compareDates(itemDate, to, false);
+            } else if (from && !to) {
+              return compareDates(itemDate, from, true);
+            } else if (!from && to) {
+              return !compareDates(itemDate, to, false);
+            }
+          }
+          return true;
+        })
         .filter(item => item.dugarolo === chosenDugarolo || chosenDugarolo === -1)
+        .sort((x, y) => {
+          const xDate = parseDate(x.dateTime);
+          const yDate = parseDate(y.dateTime);
+
+          if (xDate.year === yDate.year) {
+            if (xDate.month === yDate.month) {
+              if (xDate.day === yDate.day) {
+                if (xDate.hour === yDate.hour) {
+                  if (xDate.minutes === yDate.minutes) {
+                    if (xDate.seconds === yDate.seconds) return 0;
+                    return xDate.seconds < yDate.seconds ? -1 : 1;
+                  }
+                  return xDate.minutes < yDate.minutes ? -1 : 1;
+                }
+                return xDate.hour < yDate.hour ? -1 : 1;
+              }
+              return xDate.day < yDate.day ? -1 : 1;
+            }
+            return xDate.month < yDate.month ? -1 : 1;
+          }
+          return xDate.year < yDate.year ? -1 : 1;
+        })
         .map(item => (
           <CardItem
             key={item.id}
             tab={tabName}
             id={item.id}
             name={item.name}
+            username={item.username}
+            dateTime={parseDate(item.dateTime)}
             status={item.status}
             waterVolume={item.waterVolume}
             field={item.field}
             message={item.message}
             channel={item.channel}
             type={item.type}
+            nameChannel={item.nameChannel}
             dugarolo={item.dugarolo}
             onPressEvent={() => onPressEvent(item)}
             onLocationEvent={() => gotoLocation([40, 2])}
@@ -132,8 +265,6 @@ export default function CardLoader({
   function onPressEvent(item) {
     setItemDetails(item);
     setDetailsClicked(true);
-
-    console.log(`Clicked: ${item.id}`);
   }
 
   function deleteEvent(json, id: number) {
@@ -150,8 +281,7 @@ export default function CardLoader({
           loadCards(json);
           setIsLoaded(true);
         }
-      })
-      .then(() => console.log(`Deleted: ${id}`));
+      });
   }
 
   /* Accepting event for tomorrow tab */
@@ -170,18 +300,32 @@ export default function CardLoader({
   }
 
   function goToDetails() {
-    console.log('Opening details for: ' + itemDetails.id);
-
     return <DetailsTab ObjectDetails={itemDetails} BackEvent={() => setDetailsClicked(false)} />;
   }
 
-  return isLoaded ? (
-    !detailsClicked ? (
-      <List className="list">{cardList}</List>
+  return !snackBarError ? (
+    isLoaded ? (
+      !detailsClicked ? (
+        cardList.length > 0 ? (
+          <List className="list">{cardList}</List>
+        ) : (
+          <Alert severity="warning">No requests available</Alert>
+        )
+      ) : (
+        goToDetails()
+      )
     ) : (
-      goToDetails()
+      <Alert severity="info">Loading...</Alert>
     )
   ) : (
-    <h1>Loading...</h1>
+    <Snackbar
+      message="Error while retrieving data"
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      style={{ marginBottom: '60px' }}
+      open={snackBarError}
+    />
   );
 }

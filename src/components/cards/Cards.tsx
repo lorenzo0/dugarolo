@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
 import { Avatar, Card, CardActions, CardHeader, Button } from '@material-ui/core';
 import { PlayArrow, Delete, Room, Pause, Done } from '@material-ui/icons';
-import './cards.css';
-import farmer from './../../assets/farmer.jpg'
-import criteria from './../../assets/criteria.jpg'
+import { ParsedDateTime } from '../../AssetLoader/CardLoader';
+import farmer from './../../assets/farmer.jpg';
+import criteria from './../../assets/criteria.jpg';
 import Divider from '@material-ui/core/Divider';
+import './cards.css';
 
 interface Props {
   tab: string;
-  id: string;
+  id: number;
   name: string;
+  username: string;
+  dateTime: ParsedDateTime;
   status: string;
   waterVolume: number;
   field: string;
   message: string;
   channel: string;
   type: string;
-  dugarolo: string;
+  nameChannel: string;
+  dugarolo: number;
   onPressEvent: () => void;
   onLocationEvent: () => void;
   onAcceptEvent: () => void;
@@ -27,12 +31,15 @@ function CardItem({
   tab,
   id,
   name,
+  username,
+  dateTime,
   status,
   waterVolume,
   field,
   message,
   channel,
   type,
+  nameChannel,
   dugarolo,
   onPressEvent,
   onLocationEvent,
@@ -63,7 +70,9 @@ function CardItem({
         avatar={
           type === 'CBEC' ? (
             <Avatar alt="Farmer" src={farmer} />
-          ) : (<Avatar alt="Criteria" src={criteria} />)
+          ) : (
+            <Avatar alt="Criteria" src={criteria} />
+          )
         }
         title={name}
         onClick={onPressEvent}
@@ -73,7 +82,7 @@ function CardItem({
         <div className="divider">
           <Divider />
         </div>
-      ): null}
+      ) : null}
 
       <div className="flex-row-container">
         <CardActions>
@@ -106,17 +115,17 @@ function CardItem({
             </div>
           ) : null}
           {tab !== 'History' ? (
-          <div className="flex-row-item">
-            <Button
-              className="btn-today-location"
-              size="small"
-              startIcon={<Room />}
-              onClick={onLocationEvent}>
-              Location
-            </Button>
-          </div>
-          ): null}
-          
+            <div className="flex-row-item">
+              <Button
+                className="btn-today-location"
+                size="small"
+                startIcon={<Room />}
+                onClick={onLocationEvent}>
+                Location
+              </Button>
+            </div>
+          ) : null}
+
           {tab !== 'Tomorrow' &&
             tab !== 'History' &&
             (running ? (

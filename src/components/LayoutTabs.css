@@ -101,4 +101,39 @@ html,
   margin: 10px;
 }
 
+.from {
+  margin-left: 20%;
+  float: left;
+}
+
+.to {
+  margin-right: 20%;
+  float: right;
+}
+
+.from,
+.to {
+  margin-bottom: 1%;
+}
+
+@media only screen and (max-width: 667px) {
+  .bottom_div {
+    max-height: 45%;
+    padding-bottom: 12%;
+    align-content: center;
+  }
+
+  .from,
+  .to {
+    display: block;
+    float: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .from {
+    margin-bottom: 2px;
+  }
+}
+
 /*End handling request detail*/

@@ -25,7 +25,7 @@ export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.
 
       <div className="row">
         <div className="column_2">
-          <div className="title">Username </div>
+          <div className="title">Name </div>
         </div>
         <div className="column_2">
           <div className="value">{ObjectDetails.name}</div>
@@ -34,10 +34,10 @@ export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.
 
       <div className="row">
         <div className="column_2">
-          <div className="title">Email </div>
+          <div className="title">Date </div>
         </div>
         <div className="column_2">
-          <div className="value">{ObjectDetails.email}</div>
+          <div className="value">{ObjectDetails.dateTime}</div>
         </div>
       </div>
     </div>
