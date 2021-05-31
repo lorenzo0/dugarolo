@@ -40,6 +40,15 @@ export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.
           <div className="value">{ObjectDetails.dateTime}</div>
         </div>
       </div>
+
+      <div className="row">
+        <div className="column_2">
+          <div className="title">Dugarolo </div>
+        </div>
+        <div className="column_2">
+          <div className="value">{ObjectDetails.dugarolo}</div>
+        </div>
+      </div>
     </div>
   );
 }
