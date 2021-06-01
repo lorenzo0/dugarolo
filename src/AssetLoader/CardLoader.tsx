@@ -5,135 +5,100 @@ import { List, Snackbar } from '@material-ui/core';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import Alert from '@material-ui/lab/Alert';
 
+/*
 interface CardProps {
   id: number;
-  name: string;
-  username: string;
-  dateTime: string;
   status: string;
   waterVolume: number;
   field: string;
-  message: string;
-  channel: string;
+  channel: { id: string; name: string };
   type: string;
-  nameChannel: string;
   dugarolo: number;
+  start: string;
 }
 
 const API: CardProps[] = [
   {
     id: 1,
-    name: '31-05',
-    username: 'Name 1',
-    dateTime: '2021-05-31T07:38:56.096Z',
+    start: '2021-05-31T07:38:56.096Z',
     status: 'Accepted',
     waterVolume: 10,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'CBEC',
-    nameChannel: 'Fosfondo',
     dugarolo: 1,
   },
   {
     id: 2,
-    name: '01-06',
-    username: 'Name 2',
-    dateTime: '2021-06-02T07:38:52.054Z',
+    start: '2021-06-02T07:38:52.054Z',
     status: 'Accepted',
     waterVolume: 15,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'Criteria',
-    nameChannel: 'Fosfondo',
     dugarolo: 2,
   },
   {
     id: 3,
-    name: '01-06',
-    username: 'Name 3',
-    dateTime: '2021-06-02T08:38:56.096Z',
+    start: '2021-06-02T08:38:56.096Z',
     status: 'Accepted',
     waterVolume: 10,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'CBEC',
-    nameChannel: 'Fosfondo',
     dugarolo: 3,
   },
   {
     id: 4,
-    name: '02-06',
-    username: 'Name 4',
-    dateTime: '2021-06-05T06:20:30.096Z',
+    start: '2021-06-05T06:20:30.096Z',
     status: 'Accepted',
     waterVolume: 15,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'Criteria',
-    nameChannel: 'Fosfondo',
     dugarolo: 3,
   },
   {
     id: 5,
-    name: '03-06',
-    username: 'Name 5',
-    dateTime: '2021-06-04T06:20:30.095Z',
+    start: '2021-06-04T06:20:30.095Z',
     status: 'Accepted',
     waterVolume: 15,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'Criteria',
-    nameChannel: 'Fosfondo',
     dugarolo: 6,
   },
   {
     id: 6,
-    name: '04-06',
-    username: 'Name 6',
-    dateTime: '2021-06-06T10:20:30.40Z',
+    start: '2021-06-06T10:20:30.40Z',
     status: 'Accepted',
     waterVolume: 15,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'Criteria',
-    nameChannel: 'Fosfondo',
     dugarolo: 4,
   },
   {
     id: 7,
-    name: '31-05',
-    username: 'Name 7',
-    dateTime: '2021-05-31T08:20:30.40Z',
+    start: '2021-05-31T08:20:30.40Z',
     status: 'Accepted',
     waterVolume: 15,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'Criteria',
-    nameChannel: 'Fosfondo',
     dugarolo: 2,
   },
   {
     id: 8,
-    name: '31-05',
-    username: 'Name 8',
-    dateTime: '2021-05-31T12:20:30.40Z',
+    start: '2021-05-31T12:20:30.40Z',
     status: 'Accepted',
     waterVolume: 15,
     field: 'field',
-    message: 'message',
     channel: 'Channel',
     type: 'Criteria',
-    nameChannel: 'Fosfondo',
     dugarolo: 2,
   },
-];
+];*/
 
 export interface ParsedDateTime {
   day: number;
@@ -170,6 +135,9 @@ interface ContainerProps {
 
 function compareDates(x: ParsedDateTime, y: MaterialUiPickersDate, from: boolean): boolean {
   if (!y) return true;
+  /*console.log(x.year + " == " + y.year());
+  console.log(x.month + " == " + y.month()+1);
+  console.log(x.day + " == " + y.date());*/
 
   if (x.year === y.year()) {
     if (x.month === y.month() + 1) {
@@ -199,21 +167,27 @@ export default function CardLoader({
 
   /* isLoaded is not set false in the first time */
   useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/users')
+    fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{inspector}/irrigation_plan')
       .then(res => res.json())
-      .then(json => loadCards(API))
+      .then(json => loadCards(json))
       .then(() => setIsLoaded(true))
+      //.catch((error) => console.log(error));
       .catch(() => setSnackBarError(true));
   }, [isLoaded, chosenDugarolo, from, to]);
 
-  function loadCards(json: CardProps[]) {
+  function generateRandomDugaroli() {
+    return Math.floor(Math.random() * 7); 
+  }
+
+  function loadCards(json) {
 
     setCardList(
       json
         .filter(item => item.status !== 'Deleted')
+        .filter(item => item.status !== 'Satisfied')
         .filter(item => {
           const currentDate = new Date();
-          const itemDate = parseDate(item.dateTime);
+          const itemDate = parseDate(item.start);
 
           if (tabName === 'Today') {
             if (
@@ -244,8 +218,8 @@ export default function CardLoader({
         })
         .filter(item => item.dugarolo === chosenDugarolo || chosenDugarolo === -1)
         .sort((x, y) => {
-          const xDate = parseDate(x.dateTime);
-          const yDate = parseDate(y.dateTime);
+          const xDate = parseDate(x.start);
+          const yDate = parseDate(y.start);
 
           if (xDate.year === yDate.year) {
             if (xDate.month === yDate.month) {
@@ -270,17 +244,13 @@ export default function CardLoader({
             key={item.id}
             tab={tabName}
             id={item.id}
-            name={item.name}
-            username={item.username}
-            dateTime={parseDate(item.dateTime)}
+            dateTime={parseDate(item.start)}
             status={item.status}
             waterVolume={item.waterVolume}
             field={item.field}
-            message={item.message}
-            channel={item.channel}
+            channel={{id: item.channel.id, name: item.channel.name}}
             type={item.type}
-            nameChannel={item.nameChannel}
-            dugarolo={item.dugarolo}
+            dugarolo={2}
             onPressEvent={() => onPressEvent(item)}
             onLocationEvent={() => gotoLocation([40, 2])}
             onAcceptEvent={() => acceptEventTomorrow(json, item.id)}

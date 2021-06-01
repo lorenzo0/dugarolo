@@ -10,16 +10,12 @@ import './cards.css';
 interface Props {
   tab: string;
   id: number;
-  name: string;
-  username: string;
   dateTime: ParsedDateTime;
   status: string;
   waterVolume: number;
   field: string;
-  message: string;
-  channel: string;
+  channel: { id: string; name: string };
   type: string;
-  nameChannel: string;
   dugarolo: number;
   onPressEvent: () => void;
   onLocationEvent: () => void;
@@ -30,23 +26,29 @@ interface Props {
 function CardItem({
   tab,
   id,
-  name,
-  username,
   dateTime,
   status,
   waterVolume,
   field,
-  message,
   channel,
   type,
-  nameChannel,
   dugarolo,
   onPressEvent,
   onLocationEvent,
   onAcceptEvent,
   onDeleteEvent,
 }: Props): JSX.Element {
-  const [running, setRunning] = useState(status === 'Accepted' ? false : true);
+  const [running, setRunning] = useState(
+    status === 'Accepted' || status === 'Scheduled' ? false : true
+  );
+
+  function getFieldName(){
+    const tmpField: string[] = field.split('/');
+    return tmpField[4];
+  }
+  
+  const title = "Channel: " + channel.name;
+  const subheader = "Field: " + getFieldName();
 
   function playOrPause() {
     fetch('https://jsonplaceholder.typicode.com/posts', {
@@ -74,7 +76,8 @@ function CardItem({
             <Avatar alt="Criteria" src={criteria} />
           )
         }
-        title={name}
+        title={title}
+        subheader={subheader}
         onClick={onPressEvent}
       />
 

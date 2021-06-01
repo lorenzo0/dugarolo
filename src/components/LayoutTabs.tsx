@@ -36,11 +36,11 @@ export default function LayoutTabs({ name }) {
     setChosenDugarolo(-1);
     setToSchedule(!toSchedule);
   }
-
+//<MapView />
   return (
     <div className="container">
       <div className="top_div">
-        <MapView />
+        
       </div>
       <div className="space-top" />
       {name === 'History' ? (

@@ -16,7 +16,7 @@ export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.
 
       <div className="row">
         <div className="column_2">
-          <div className="title">ID </div>
+          <div className="title">ID request</div>
         </div>
         <div className="column_2">
           <div className="value">{ObjectDetails.id}</div>
@@ -25,30 +25,51 @@ export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.
 
       <div className="row">
         <div className="column_2">
-          <div className="title">Name </div>
+          <div className="title">ID field </div>
         </div>
         <div className="column_2">
-          <div className="value">{ObjectDetails.name}</div>
-        </div>
-      </div>
-
-      <div className="row">
-        <div className="column_2">
-          <div className="title">Date </div>
-        </div>
-        <div className="column_2">
-          <div className="value">{ObjectDetails.dateTime}</div>
+          <div className="value">{ObjectDetails.field}</div>
         </div>
       </div>
 
       <div className="row">
         <div className="column_2">
-          <div className="title">Dugarolo </div>
+          <div className="title">Start time </div>
         </div>
         <div className="column_2">
-          <div className="value">{ObjectDetails.dugarolo}</div>
+          <div className="value">{ObjectDetails.start}</div>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="column_2">
+          <div className="title">Water volume </div>
+        </div>
+        <div className="column_2">
+          <div className="value">{ObjectDetails.waterVolume}</div>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="column_2">
+          <div className="title">Current status </div>
+        </div>
+        <div className="column_2">
+          <div className="value">{ObjectDetails.status}</div>
         </div>
       </div>
     </div>
   );
 }
+
+/*
+Not printable until dugarolo will be added to the request
+  <div className="row">
+    <div className="column_2">
+      <div className="title">Dugarolo assigned</div>
+    </div>
+    <div className="column_2">
+      <div className="value">{ObjectDetails.dugarolo}</div>
+    </div>
+  </div>
+*/
