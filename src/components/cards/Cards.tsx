@@ -9,7 +9,7 @@ import './cards.css';
 
 interface Props {
   tab: string;
-  id: number;
+  id: string;
   dateTime: ParsedDateTime;
   status: string;
   waterVolume: number;
@@ -49,21 +49,45 @@ function CardItem({
   
   const title = "Channel: " + channel.name;
   const subheader = "Field: " + getFieldName();
+  let idPost, fieldPost, statusPost;
+
+  function prepareStringForPost(){
+
+    do{
+      idPost = id.replace(":", "%3A");
+      idPost = id.replace("/", "%2F");
+    }while(idPost.includes("/") ||
+            idPost.includes(":"));
+
+    do{
+      fieldPost = field.replace(":", "%3A");
+      fieldPost = field.replace("/", "%2F");
+    }while(fieldPost.includes("/") ||
+            fieldPost.includes(":"));
+
+  }
+  
 
   function playOrPause() {
-    fetch('https://jsonplaceholder.typicode.com/posts', {
-      method: 'POST',
-      body: JSON.stringify({ message: 'Nuovo stato: ' + !running, status: !running }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    })
-      .then(response => response.ok)
-      .then(ok => {
-        if (ok === true) {
-          setRunning(!running);
-        }
-      });
+    prepareStringForPost();
+
+    if(idPost && fieldPost){
+      status ? statusPost = 'Interrupted' : statusPost = 'Ongoing';
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: statusPost })
+      };
+
+      fetch("http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/" + fieldPost + "/irrigation_plan/" + idPost + "/status", requestOptions)
+        .then(response => {
+          console.log(response);
+          if (response.ok) {
+            setRunning(!running);
+          }
+        })
+        .catch((error) => console.log(error));
+    }
   }
 
   return (

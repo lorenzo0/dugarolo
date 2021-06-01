@@ -5,101 +5,6 @@ import { List, Snackbar } from '@material-ui/core';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import Alert from '@material-ui/lab/Alert';
 
-/*
-interface CardProps {
-  id: number;
-  status: string;
-  waterVolume: number;
-  field: string;
-  channel: { id: string; name: string };
-  type: string;
-  dugarolo: number;
-  start: string;
-}
-
-const API: CardProps[] = [
-  {
-    id: 1,
-    start: '2021-05-31T07:38:56.096Z',
-    status: 'Accepted',
-    waterVolume: 10,
-    field: 'field',
-    channel: 'Channel',
-    type: 'CBEC',
-    dugarolo: 1,
-  },
-  {
-    id: 2,
-    start: '2021-06-02T07:38:52.054Z',
-    status: 'Accepted',
-    waterVolume: 15,
-    field: 'field',
-    channel: 'Channel',
-    type: 'Criteria',
-    dugarolo: 2,
-  },
-  {
-    id: 3,
-    start: '2021-06-02T08:38:56.096Z',
-    status: 'Accepted',
-    waterVolume: 10,
-    field: 'field',
-    channel: 'Channel',
-    type: 'CBEC',
-    dugarolo: 3,
-  },
-  {
-    id: 4,
-    start: '2021-06-05T06:20:30.096Z',
-    status: 'Accepted',
-    waterVolume: 15,
-    field: 'field',
-    channel: 'Channel',
-    type: 'Criteria',
-    dugarolo: 3,
-  },
-  {
-    id: 5,
-    start: '2021-06-04T06:20:30.095Z',
-    status: 'Accepted',
-    waterVolume: 15,
-    field: 'field',
-    channel: 'Channel',
-    type: 'Criteria',
-    dugarolo: 6,
-  },
-  {
-    id: 6,
-    start: '2021-06-06T10:20:30.40Z',
-    status: 'Accepted',
-    waterVolume: 15,
-    field: 'field',
-    channel: 'Channel',
-    type: 'Criteria',
-    dugarolo: 4,
-  },
-  {
-    id: 7,
-    start: '2021-05-31T08:20:30.40Z',
-    status: 'Accepted',
-    waterVolume: 15,
-    field: 'field',
-    channel: 'Channel',
-    type: 'Criteria',
-    dugarolo: 2,
-  },
-  {
-    id: 8,
-    start: '2021-05-31T12:20:30.40Z',
-    status: 'Accepted',
-    waterVolume: 15,
-    field: 'field',
-    channel: 'Channel',
-    type: 'Criteria',
-    dugarolo: 2,
-  },
-];*/
-
 export interface ParsedDateTime {
   day: number;
   month: number;
@@ -135,9 +40,6 @@ interface ContainerProps {
 
 function compareDates(x: ParsedDateTime, y: MaterialUiPickersDate, from: boolean): boolean {
   if (!y) return true;
-  /*console.log(x.year + " == " + y.year());
-  console.log(x.month + " == " + y.month()+1);
-  console.log(x.day + " == " + y.date());*/
 
   if (x.year === y.year()) {
     if (x.month === y.month() + 1) {
@@ -253,8 +155,8 @@ export default function CardLoader({
             dugarolo={2}
             onPressEvent={() => onPressEvent(item)}
             onLocationEvent={() => gotoLocation([40, 2])}
-            onAcceptEvent={() => acceptEventTomorrow(json, item.id)}
-            onDeleteEvent={() => deleteEvent(json, item.id)}
+            onAcceptEvent={() => acceptEventTomorrow(json, item)}
+            onDeleteEvent={() => deleteEvent(json, item)}
           />
         ))
     );
@@ -265,36 +167,70 @@ export default function CardLoader({
     setDetailsClicked(true);
   }
 
-  function deleteEvent(json, id: number) {
-    fetch('https://jsonplaceholder.typicode.com/posts', {
+  function prepareStringForPost(item){
+
+    do{
+      item.id = item.id.replace(":", "%3A");
+      item.id = item.id.replace("/", "%2F");
+    }while(item.id.includes("/") ||
+              item.id.includes(":"));
+
+    do{
+      item.field = item.field.replace(":", "%3A");
+      item.field = item.field.replace("/", "%2F");
+    }while(item.field.includes("/") ||
+            item.field.includes(":"));
+
+    return item;
+  }
+
+  function deleteEvent(json, item) {
+    console.log(item);
+    let finalJsonToPost = prepareStringForPost(item);
+    console.log(finalJsonToPost);
+
+    const requestOptions = {
       method: 'POST',
-      body: JSON.stringify({ message: 'Accepted request', status: 'Accepted' }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Cancelled' })
+    };
+
+    fetch("http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/" + finalJsonToPost.field + "/irrigation_plan/" + finalJsonToPost.id + "/status", requestOptions)
       .then(response => {
+        console.log(response);
         if (response.ok) {
           setIsLoaded(false);
           loadCards(json);
           setIsLoaded(true);
+          console.log("Cancelled!")
         }
-      });
+      })
+      .catch((error) => console.log(error));
   }
 
   /* Accepting event for tomorrow tab */
-  function acceptEventTomorrow(json, id: number) {
-    fetch('https://jsonplaceholder.typicode.com/posts', {
+  function acceptEventTomorrow(json, item) {
+    console.log(item);
+    let finalJsonToPost = prepareStringForPost(item);
+    console.log(finalJsonToPost);
+
+    const requestOptions = {
       method: 'POST',
-      body: JSON.stringify({ message: 'Accepted request', status: 'Accepted' }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    }).then(() => {
-      setIsLoaded(false);
-      loadCards(json);
-      setIsLoaded(true);
-    });
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Accepted' })
+    };
+
+    fetch("http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/" + finalJsonToPost.field + "/irrigation_plan/" + finalJsonToPost.id + "/status", requestOptions)
+      .then(response => {
+        console.log(response);
+        if (response.ok) {
+          setIsLoaded(false);
+          loadCards(json);
+          setIsLoaded(true);
+          console.log("Accepted!")
+        }
+      })
+      .catch((error) => console.log(error));
   }
 
   function goToDetails() {
