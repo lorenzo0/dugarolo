@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
 import { Button, Snackbar } from '@material-ui/core';
-import MapTab from '../../../tabs/Map/MapTab';
+import MapTab from '../../../tabs/Map';
 import loadingGif from '../../../assets/loading.gif';
 import farmer from '../../../assets/farmer.jpg';
 import './halfMap.css';

@@ -1,9 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import DetailsTab from '../tabs/Details/DetailsTab';
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import DetailsTab from '../tabs/Details';
 import CardItem from '../components/cards/Cards';
 import { List, Snackbar } from '@material-ui/core';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
 import Alert from '@material-ui/lab/Alert';
+
+interface Props {
+  tabName: string;
+  serverData: any;
+  setServerData: Dispatch<SetStateAction<undefined>>;
+  gotoLocation: (newLocation) => void;
+  chosenDugarolo: number;
+  from?: MaterialUiPickersDate;
+  to?: MaterialUiPickersDate;
+}
 
 export interface ParsedDateTime {
   day: number;
@@ -14,53 +24,7 @@ export interface ParsedDateTime {
   seconds: number;
 }
 
-function parseDate(rawDateTime: string): ParsedDateTime {
-  const tmpDateTime: string[] = rawDateTime.split('T');
-
-  const date = tmpDateTime[0].split('-');
-  const year: number = parseInt(date[0]);
-  const month: number = parseInt(date[1]);
-  const day: number = parseInt(date[2]);
-
-  const time = tmpDateTime[1].split(':');
-  const hour: number = parseInt(time[0]);
-  const minutes: number = parseInt(time[1]);
-  const seconds: number = parseFloat(time[2].substring(0, time[2].length - 1));
-
-  return { day: day, month: month, year: year, hour: hour, minutes: minutes, seconds: seconds };
-}
-
-interface ContainerProps {
-  tabName: string;
-  gotoLocation: (newLocation) => void;
-  chosenDugarolo: number;
-  from?: MaterialUiPickersDate;
-  to?: MaterialUiPickersDate;
-}
-
-function compareDates(x: ParsedDateTime, y: MaterialUiPickersDate, from: boolean): boolean {
-  if (!y) return true;
-
-  if (x.year === y.year()) {
-    if (x.month === y.month() + 1) {
-      if (x.day === y.date()) {
-        if (from) return true;
-        return false;
-      }
-      return x.day < y.date() ? false : true;
-    }
-    return x.month < y.month() + 1 ? false : true;
-  }
-  return x.year < y.year() ? false : true;
-}
-
-export default function CardLoader({
-  tabName,
-  gotoLocation,
-  chosenDugarolo,
-  from,
-  to,
-}: ContainerProps): JSX.Element {
+export default function CardLoader(props: Props): JSX.Element {
   const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
   const [cardList, setCardList] = React.useState<any[]>([]);
   const [detailsClicked, setDetailsClicked] = React.useState(false);
@@ -69,29 +33,81 @@ export default function CardLoader({
 
   /* isLoaded is not set false in the first time */
   useEffect(() => {
-    fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{inspector}/irrigation_plan')
-      .then(res => res.json())
-      .then(json => loadCards(json))
-      .then(() => setIsLoaded(true))
-      //.catch((error) => console.log(error));
-      .catch(() => setSnackBarError(true));
-  }, [isLoaded, chosenDugarolo, from, to]);
+    if (props.serverData) {
+      if(props.serverData === "Loading")
+        console.log("Loading");
+      else if(props.serverData === "Failed")
+        setSnackBarError(true);
+      else{
+        if (props.to && props.from)
+          loadCardHistory(props.from, props.to);
+        else 
+          loadCards(props.serverData);
+        
+        setSnackBarError(false);
+        setIsLoaded(true);
+      }
+    } else
+      setSnackBarError(true);
+    
+  }, [isLoaded, props.serverData, props.chosenDugarolo, props.from, props.to]);
 
-  function generateRandomDugaroli() {
-    return Math.floor(Math.random() * 7); 
+  function parseDate(rawDateTime: string): ParsedDateTime {
+    const tmpDateTime: string[] = rawDateTime.split('T');
+
+    const date = tmpDateTime[0].split('-');
+    const year: number = parseInt(date[0]);
+    const month: number = parseInt(date[1]);
+    const day: number = parseInt(date[2]);
+
+    const time = tmpDateTime[1].split(':');
+    const hour: number = parseInt(time[0]);
+    const minutes: number = parseInt(time[1]);
+    const seconds: number = parseFloat(time[2].substring(0, time[2].length - 1));
+
+    return { day: day, month: month, year: year, hour: hour, minutes: minutes, seconds: seconds };
+  }
+
+  //2021-06-02T12:00:00.000+0200
+  function formatDataForHistoryRequest(x) {
+    let month, day, hour, minute, second;
+
+    if (x.month() < 10) month = '0' + x.month();
+    else month = x.month();
+
+    if (x.day() < 10) day = '0' + x.day();
+    else day = x.day();
+
+    if (x.hour() < 10) hour = '0' + x.hour();
+    else hour = x.hour();
+
+    if (x.minute() < 10) minute = '0' + x.minute();
+    else minute = x.minute();
+
+    if (x.second() < 10) second = '0' + x.second();
+    else second = x.second();
+
+    let stringStart =
+      x.year() + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second + '.000+0200';
+    stringStart = prepareStringForPost(stringStart);
+    return stringStart;
   }
 
   function loadCards(json) {
-
     setCardList(
       json
-        .filter(item => item.status !== 'Deleted')
-        .filter(item => item.status !== 'Satisfied')
+        .filter(item => {
+          if (props.tabName !== 'History') {
+            if (item.status !== 'Deleted' && item.status !== 'Satisfied') return true;
+            return false;
+          }
+          return true;
+        })
         .filter(item => {
           const currentDate = new Date();
           const itemDate = parseDate(item.start);
 
-          if (tabName === 'Today') {
+          if (props.tabName === 'Today') {
             if (
               itemDate.day === currentDate.getDate() &&
               itemDate.month === currentDate.getMonth() + 1
@@ -99,7 +115,7 @@ export default function CardLoader({
               return true;
             }
             return false;
-          } else if (tabName === 'Tomorrow') {
+          } else if (props.tabName === 'Tomorrow') {
             if (
               itemDate.day === currentDate.getDate() + 1 &&
               itemDate.month === currentDate.getMonth() + 1
@@ -107,18 +123,10 @@ export default function CardLoader({
               return true;
             }
             return false;
-          } else if (tabName === 'History') {
-            if (from && to) {
-              return compareDates(itemDate, from, true) && !compareDates(itemDate, to, false);
-            } else if (from && !to) {
-              return compareDates(itemDate, from, true);
-            } else if (!from && to) {
-              return !compareDates(itemDate, to, false);
-            }
           }
           return true;
         })
-        .filter(item => item.dugarolo === chosenDugarolo || chosenDugarolo === -1)
+        .filter(item => item.dugarolo === props.chosenDugarolo || props.chosenDugarolo === -1)
         .sort((x, y) => {
           const xDate = parseDate(x.start);
           const yDate = parseDate(y.start);
@@ -144,17 +152,17 @@ export default function CardLoader({
         .map(item => (
           <CardItem
             key={item.id}
-            tab={tabName}
+            tab={props.tabName}
             id={item.id}
             dateTime={parseDate(item.start)}
             status={item.status}
             waterVolume={item.waterVolume}
             field={item.field}
-            channel={{id: item.channel.id, name: item.channel.name}}
+            channel={{ id: item.channel.id, name: item.channel.name }}
             type={item.type}
             dugarolo={2}
             onPressEvent={() => onPressEvent(item)}
-            onLocationEvent={() => gotoLocation([40, 2])}
+            onLocationEvent={() => props.gotoLocation([40, 2])}
             onAcceptEvent={() => acceptEventTomorrow(json, item)}
             onDeleteEvent={() => deleteEvent(json, item)}
           />
@@ -167,45 +175,69 @@ export default function CardLoader({
     setDetailsClicked(true);
   }
 
-  function prepareStringForPost(item){
-
-    do{
-      item.id = item.id.replace(":", "%3A");
-      item.id = item.id.replace("/", "%2F");
-    }while(item.id.includes("/") ||
-              item.id.includes(":"));
-
-    do{
-      item.field = item.field.replace(":", "%3A");
-      item.field = item.field.replace("/", "%2F");
-    }while(item.field.includes("/") ||
-            item.field.includes(":"));
+  function prepareStringForPost(item) {
+    do {
+      item = item.replace(':', '%3A');
+      item = item.replace('/', '%2F');
+      item = item.replace('+', '%2B');
+    } while (item.includes('/') || item.includes(':') || item.includes('+'));
 
     return item;
   }
 
+  /*It has to be tested*/
   function deleteEvent(json, item) {
-    console.log(item);
-    let finalJsonToPost = prepareStringForPost(item);
-    console.log(finalJsonToPost);
+    item.id = prepareStringForPost(item.id);
+    item.field = prepareStringForPost(item.field);
 
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'Cancelled' })
+      body: JSON.stringify({ status: 'Cancelled' }),
     };
 
-    fetch("http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/" + finalJsonToPost.field + "/irrigation_plan/" + finalJsonToPost.id + "/status", requestOptions)
+    fetch(
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/' +
+        item.field +
+        '/irrigation_plan/' +
+        item.id +
+        '/status',
+      requestOptions
+    )
       .then(response => {
         console.log(response);
         if (response.ok) {
           setIsLoaded(false);
           loadCards(json);
           setIsLoaded(true);
-          console.log("Cancelled!")
+          console.log('Cancelled!');
         }
       })
-      .catch((error) => console.log(error));
+      .catch(error => console.log(error));
+  }
+
+  //2021-06-02T12:00:00.000+0200
+  //http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/irrigations?from=2021-05-03T09%3A58%3A11.000%2B0200&to=2021-06-02T12%3A00%3A00.000%2B0200
+  function loadCardHistory(from, to) {
+    let fromRequest = formatDataForHistoryRequest(from);
+    let toRequest = formatDataForHistoryRequest(to);
+
+    setIsLoaded(false);
+
+    fetch(
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/irrigations?from=' +
+        fromRequest +
+        '&to=' +
+        toRequest
+    )
+      .then(res => res.json())
+      .then(json => loadCards(json))
+      .then(() => setIsLoaded(true))
+      //.then(() => console.log('Server data fetched successfully'))
+      .catch(() => {
+        setIsLoaded(true);
+        console.log('Server data fetch error');
+      });
   }
 
   /* Accepting event for tomorrow tab */
@@ -217,20 +249,27 @@ export default function CardLoader({
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'Accepted' })
+      body: JSON.stringify({ status: 'Accepted' }),
     };
 
-    fetch("http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/" + finalJsonToPost.field + "/irrigation_plan/" + finalJsonToPost.id + "/status", requestOptions)
+    fetch(
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/' +
+        finalJsonToPost.field +
+        '/irrigation_plan/' +
+        finalJsonToPost.id +
+        '/status',
+      requestOptions
+    )
       .then(response => {
         console.log(response);
         if (response.ok) {
           setIsLoaded(false);
           loadCards(json);
           setIsLoaded(true);
-          console.log("Accepted!")
+          console.log('Accepted!');
         }
       })
-      .catch((error) => console.log(error));
+      .catch(error => console.log(error));
   }
 
   function goToDetails() {

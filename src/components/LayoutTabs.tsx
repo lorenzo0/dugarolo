@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import './LayoutTabs.css';
 import CardLoader from '../AssetLoader/CardLoader';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
@@ -11,7 +11,13 @@ import Fade from '@material-ui/core/Fade';
 import DugaroloLoader from '../AssetLoader/DugaroloLoader';
 import Alert from '@material-ui/lab/Alert';
 
-export default function LayoutTabs({ name }) {
+interface Props {
+  tabName: string;
+  serverData: any;
+  setServerData: Dispatch<SetStateAction<undefined>>;
+}
+
+export default function LayoutTabs(props: Props) {
   const [from, setFrom] = useState<MaterialUiPickersDate>();
   const [to, setTo] = useState<MaterialUiPickersDate>();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -19,8 +25,12 @@ export default function LayoutTabs({ name }) {
   const [toSchedule, setToSchedule] = useState<boolean>(false);
   const [chosenDugarolo, setChosenDugarolo] = useState<number>(-1);
 
-  const datepickerStyle = {
-    background: '#ffffff',
+  const datepickerStyleUndefined = {
+    background: '#FA8072',
+  };
+
+  const datepickerStyleDefined = {
+    background: '#90EE90',
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -43,7 +53,7 @@ export default function LayoutTabs({ name }) {
         <MapView />
       </div>
       <div className="space-top" />
-      {name === 'History' ? (
+      {props.tabName === 'History' ? (
         <MuiPickersUtilsProvider utils={DateUtils}>
           <div className="from">
             <DatePicker
@@ -52,7 +62,7 @@ export default function LayoutTabs({ name }) {
               id="da"
               label="Da"
               size="small"
-              style={datepickerStyle}
+              style={from ? datepickerStyleDefined : datepickerStyleUndefined}
             />
           </div>
           <div className="to">
@@ -62,7 +72,7 @@ export default function LayoutTabs({ name }) {
               id="a"
               label="A"
               size="small"
-              style={datepickerStyle}
+              style={to ? datepickerStyleDefined : datepickerStyleUndefined}
             />
           </div>
         </MuiPickersUtilsProvider>
@@ -101,7 +111,7 @@ export default function LayoutTabs({ name }) {
             <DugaroloLoader onClick={handleClose} />
           </Menu>
         </div>
-      ) : name === 'Today' ? (
+      ) : props.tabName === 'Today' ? (
         <div>
           <Button
             aria-controls="fade-menu"
@@ -112,13 +122,15 @@ export default function LayoutTabs({ name }) {
             Today schedule
           </Button>
         </div>
-      ) : name === 'Tomorrow' ? (
+      ) : props.tabName === 'Tomorrow' ? (
         <Alert severity="info">Accept or reject the requests available for tomorrow!</Alert>
       ) : null}
       <div className="space-bottom" />
       <div className="bottom_div">
         <CardLoader
-          tabName={name}
+          tabName={props.tabName}
+          serverData={props.serverData}
+          setServerData={props.setServerData}
           gotoLocation={onClick}
           chosenDugarolo={chosenDugarolo}
           from={from}
