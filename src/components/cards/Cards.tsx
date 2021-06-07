@@ -21,6 +21,7 @@ interface Props {
   onLocationEvent: () => void;
   onAcceptEvent: () => void;
   onDeleteEvent: () => void;
+  onSatisfyEvent: () => void;
 }
 
 function CardItem({
@@ -37,57 +38,48 @@ function CardItem({
   onLocationEvent,
   onAcceptEvent,
   onDeleteEvent,
+  onSatisfyEvent,
 }: Props): JSX.Element {
   const [running, setRunning] = useState(
-    status === 'Accepted' || status === 'Scheduled' ? false : true
+    status === 'Accepted' || status === '0' || status === 'Scheduled' || status === '1'
+      ? false
+      : true
   );
 
-  function getFieldName(){
+  function getFieldName() {
     const tmpField: string[] = field.split('/');
-    return tmpField[4];
+    const finalField: string[] = tmpField[4].split('_');
+    return finalField[1];
   }
-  
-  const title = "Channel: " + channel.name;
-  const subheader = "Field: " + getFieldName();
-  let idPost, fieldPost, statusPost;
 
-  function prepareStringForPost(){
-
-    do{
-      idPost = id.replace(":", "%3A");
-      idPost = id.replace("/", "%2F");
-    }while(idPost.includes("/") ||
-            idPost.includes(":"));
-
-    do{
-      fieldPost = field.replace(":", "%3A");
-      fieldPost = field.replace("/", "%2F");
-    }while(fieldPost.includes("/") ||
-            fieldPost.includes(":"));
-
-  }
-  
+  const title = 'Channel: ' + channel.name;
+  const subheader = 'Field: ' + getFieldName();
 
   function playOrPause() {
-    prepareStringForPost();
+    const idPost = encodeURIComponent(id);
+    const fieldPost = encodeURIComponent(field);
+    let statusPost;
 
-    if(idPost && fieldPost){
-      status ? statusPost = 'Interrupted' : statusPost = 'Ongoing';
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: statusPost })
-      };
+    running ? (statusPost = 'Interrupted') : (statusPost = 'Ongoing');
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: statusPost }),
+    };
 
-      fetch("http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/" + fieldPost + "/irrigation_plan/" + idPost + "/status", requestOptions)
-        .then(response => {
-          console.log(response);
-          if (response.ok) {
-            setRunning(!running);
-          }
-        })
-        .catch((error) => console.log(error));
-    }
+    fetch(
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/' +
+        fieldPost +
+        '/irrigation_plan/' +
+        idPost +
+        '/status',
+      requestOptions
+    )
+      .then(response => {
+        console.log(statusPost);
+        if (response.ok) setRunning(!running);
+      })
+      .catch(error => console.log(error));
   }
 
   return (
@@ -122,27 +114,7 @@ function CardItem({
                 onClick={playOrPause}>
                 {running ? 'Pause' : 'Play'}
               </Button>
-            </div>
-          ) : tab === 'Tomorrow' ? (
-            <div className="flex-row-item">
-              <Button
-                className="btn-today-location"
-                size="small"
-                startIcon={<Done />}
-                onClick={() => {}}>
-                Accept
-              </Button>
-              <Button
-                className="btn-today-location"
-                size="small"
-                startIcon={<Delete />}
-                onClick={onDeleteEvent}>
-                Reject
-              </Button>
-            </div>
-          ) : null}
-          {tab !== 'History' ? (
-            <div className="flex-row-item">
+
               <Button
                 className="btn-today-location"
                 size="small"
@@ -150,28 +122,43 @@ function CardItem({
                 onClick={onLocationEvent}>
                 Location
               </Button>
+
+              <Button
+                className="btn-today-delete"
+                size="small"
+                startIcon={running ? <Done /> : <Delete />}
+                onClick={running ? onSatisfyEvent : onDeleteEvent}>
+                {running ? 'Satisfied' : 'Delete'}
+              </Button>
+            </div>
+          ) : tab === 'Tomorrow' ? (
+            <div className="flex-row-item">
+              <Button
+                className="btn-today-play"
+                size="small"
+                startIcon={<Done />}
+                onClick={onAcceptEvent}>
+                Accept
+              </Button>
+
+              <Button
+                className="btn-today-location"
+                size="small"
+                startIcon={<Room />}
+                onClick={onLocationEvent}>
+                Location
+              </Button>
+
+              <Button
+                className="btn-today-play"
+                size="small"
+                startIcon={<Delete />}
+                onClick={onDeleteEvent}>
+                Reject
+              </Button>
+              
             </div>
           ) : null}
-
-          {tab !== 'Tomorrow' &&
-            tab !== 'History' &&
-            (running ? (
-              <div className="flex-row-item">
-                <Button className="btn-today-delete" size="small" startIcon={<Done />}>
-                  Satisfied
-                </Button>
-              </div>
-            ) : (
-              <div className="flex-row-item">
-                <Button
-                  className="btn-today-delete"
-                  size="small"
-                  startIcon={<Delete />}
-                  onClick={onDeleteEvent}>
-                  Delete
-                </Button>
-              </div>
-            ))}
         </CardActions>
       </div>
     </Card>

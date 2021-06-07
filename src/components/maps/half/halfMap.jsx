@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Polygon, Circle, Polyline, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, Circle, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import { CropFree, MyLocation } from '@material-ui/icons';
 import { Button, Snackbar } from '@material-ui/core';
 import MapTab from '../../../tabs/Map';
 import loadingGif from '../../../assets/loading.gif';
-import farmer from '../../../assets/farmer.jpg';
 import './halfMap.css';
 
-const zoom = 13;
+let zoom = 13;
 let mapInstance;
 
 export function onClick(newPosition) {
+  zoom = 17;
   mapInstance.flyTo(newPosition, zoom);
 }
 
-export default function MapView() {
+export default function MapView(props) {
   const [map, setMap] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [extendedMap, setExtendedMap] = useState(false);
-
   const [farms, setFarms] = useState([]);
   const [weirs, setWeirs] = useState([]);
   const [connections, setConnections] = useState([]);
@@ -31,28 +29,24 @@ export default function MapView() {
   useEffect(() => {
     if (map != null) {
       mapInstance = map;
+
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 500);
     }
 
     if (!isLoaded) {
-      fetch(
-        'http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/WDMInspector/%7Bispector%7D/assigned_farms'
-      )
-        .then(res => res.json())
-        .then(json => {
-          loadFarms(json);
-          return fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/wdn/nodes');
-        })
-        .then(res => res.json())
-        .then(json => {
-          loadWeirs(json);
-          return fetch('http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/wdn/connections');
-        })
-        .then(res => res.json())
-        .then(json => loadConnection(json))
-        .then(() => setIsLoaded(true))
-        .catch(() => setSnackBarError(true));
+      if (props.mapData === 'Failed') {
+        setSnackBarError(true);
+      }
+      if (props.mapData) {
+        loadFarms(props.mapData[0]);
+        loadWeirs(props.mapData[1]);
+        loadConnections(props.mapData[2]);
+        setIsLoaded(true);
+      }
     }
-  }, [isLoaded, map]);
+  }, [isLoaded, map, props.mapData, zoom]);
 
   function loadLocationMap() {
     map.locate({
@@ -68,22 +62,26 @@ export default function MapView() {
     );
 
     setFarms(tmpFarms);
-    //delete x exists, but it has to be understood
-    tmpFarms = null;
   }
 
   //{"type":"Weir","id":"http://swamp-project.org/ns#Gate2","name":"Paratoia 2","location":{"lat":44.7745341766,"lon":10.7233746178}}
-
   function loadWeirs(items) {
     let tmpWeirs = [];
 
-    items.map(weir => (weir.type === 'Weir' ? tmpWeirs.push({ id: weir.name, weir: weir }) : null));
+    items.map(weir =>
+      weir.type === 'Weir'
+        ? tmpWeirs.push({
+            id: weir.name,
+            weir: weir,
+          })
+        : null
+    );
 
     setWeirs(tmpWeirs);
     tmpWeirs = null;
   }
 
-  function loadConnection(items) {
+  function loadConnections(items) {
     let tmpConnection = [];
 
     items.map(connection =>
@@ -95,7 +93,6 @@ export default function MapView() {
     );
 
     setConnections(tmpConnection);
-    tmpConnection = null;
   }
 
   function toggleExtendedMap() {
@@ -108,7 +105,7 @@ export default function MapView() {
         <>
           <MapContainer center={[44.7016081, 10.5682283]} zoom={zoom} whenCreated={setMap}>
             <TileLayer
-              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors/>'
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
@@ -116,9 +113,9 @@ export default function MapView() {
               <Polygon pathOptions={purpleOptions} positions={farm.field.area} />
             ))}
 
-            {weirs.map(object => {
-              <Circle center={object.weir.location} radius={200} />;
-            })}
+            {weirs.map(object => (
+              <Circle center={object.weir.location} radius={200} />
+            ))}
 
             {connections.map(object => (
               <Polyline

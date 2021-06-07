@@ -29,8 +29,18 @@ function parseDate(rawDateTime: string){
   return year + "-" + finalMonth + "-" + finalDay + " at " + finalHour + ":" + finalMinutes + ":" + finalSeconds;
 }
 
+function parseStatus(status: string){
+  if(status === "3") return "Interrupted";
+  else if(status === "2") return "Ongoing";
+  else if(status === "1") return "Accepted";
+  else if(status === "0") return "Scheduled";
+  else return status;
+}
+
 export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.Element {
   let startTime = parseDate(ObjectDetails.start);
+  let statusString = parseStatus(ObjectDetails.status);
+
   return (
     <div>
       <div className="row">
@@ -79,7 +89,16 @@ export default function DetailsTab({ ObjectDetails, BackEvent }: TodayObj): JSX.
           <div className="title">Current status </div>
         </div>
         <div className="column_2">
-          <div className="value">{ObjectDetails.status}</div>
+          <div className="value">{statusString}</div>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="column_2">
+          <div className="title">Assigned dugarolo </div>
+        </div>
+        <div className="column_2">
+          <div className="value">{ObjectDetails.dugarolo}</div>
         </div>
       </div>
     </div>

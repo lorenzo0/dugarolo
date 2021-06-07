@@ -1,14 +1,15 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import LayoutTabs from '../components/LayoutTabs';
 
 interface Props {
   name: string;
-  serverData: any;
-  setServerData: Dispatch<SetStateAction<undefined>>;
+  cardsData: any;
+  setCardsData: Dispatch<SetStateAction<undefined>>;
+  mapData: any;
 }
 
-export default function TodayTab(props: Props): JSX.Element {
+export default function Tab(props: Props): JSX.Element {
   return (
     <IonPage>
       <IonHeader>
@@ -24,8 +25,9 @@ export default function TodayTab(props: Props): JSX.Element {
         </IonHeader>
         <LayoutTabs
           tabName={props.name}
-          serverData={props.serverData}
-          setServerData={props.setServerData}
+          cardsData={props.cardsData}
+          setCardsData={props.setCardsData}
+          mapData={props.mapData}
         />
       </IonContent>
     </IonPage>

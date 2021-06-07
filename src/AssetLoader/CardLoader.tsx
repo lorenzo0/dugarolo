@@ -7,10 +7,11 @@ import Alert from '@material-ui/lab/Alert';
 
 interface Props {
   tabName: string;
-  serverData: any;
-  setServerData: Dispatch<SetStateAction<undefined>>;
+  cardsData: any;
+  setCardsData: Dispatch<SetStateAction<undefined>>;
   gotoLocation: (newLocation) => void;
   chosenDugarolo: number;
+  mapData: any[];
   from?: MaterialUiPickersDate;
   to?: MaterialUiPickersDate;
 }
@@ -30,27 +31,17 @@ export default function CardLoader(props: Props): JSX.Element {
   const [detailsClicked, setDetailsClicked] = React.useState(false);
   const [itemDetails, setItemDetails] = useState<any>();
   const [snackBarError, setSnackBarError] = useState<boolean>(false);
+  const [fetchingHistory, setFetchingHistory] = useState<boolean>(false);
 
   /* isLoaded is not set false in the first time */
   useEffect(() => {
-    if (props.serverData) {
-      if(props.serverData === "Loading")
-        console.log("Loading");
-      else if(props.serverData === "Failed")
-        setSnackBarError(true);
-      else{
-        if (props.to && props.from)
-          loadCardHistory(props.from, props.to);
-        else 
-          loadCards(props.serverData);
-        
-        setSnackBarError(false);
-        setIsLoaded(true);
-      }
-    } else
-      setSnackBarError(true);
-    
-  }, [isLoaded, props.serverData, props.chosenDugarolo, props.from, props.to]);
+    if (props.cardsData === 'Loading') console.log('Loading cards data');
+    else if (props.cardsData === 'Failed') setSnackBarError(true);
+    else {
+      if (props.to && props.from && !fetchingHistory) loadCardHistory();
+      else loadCards(props.cardsData);
+    }
+  }, [isLoaded, props.cardsData, props.chosenDugarolo, props.from, props.to]);
 
   function parseDate(rawDateTime: string): ParsedDateTime {
     const tmpDateTime: string[] = rawDateTime.split('T');
@@ -75,8 +66,8 @@ export default function CardLoader(props: Props): JSX.Element {
     if (x.month() < 10) month = '0' + x.month();
     else month = x.month();
 
-    if (x.day() < 10) day = '0' + x.day();
-    else day = x.day();
+    if (x.date() < 10) day = '0' + x.date();
+    else day = x.date();
 
     if (x.hour() < 10) hour = '0' + x.hour();
     else hour = x.hour();
@@ -89,16 +80,49 @@ export default function CardLoader(props: Props): JSX.Element {
 
     let stringStart =
       x.year() + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second + '.000+0200';
-    stringStart = prepareStringForPost(stringStart);
+
+    stringStart = encodeURIComponent(stringStart);
     return stringStart;
+  }
+
+  function getFieldLocation(item) {
+    let tmpLocation: number[] = [];
+
+    if (props.mapData) {
+      props.mapData.forEach((promise: any[]) => {
+        promise.forEach(data => {
+          if (data.fields !== undefined) {
+            data.fields.forEach(field => {
+              if (item.field === field.id) tmpLocation = [field.location.lat, field.location.lon];
+            });
+          }
+        });
+      });
+    }
+
+    return tmpLocation;
+  }
+
+  function generateRandomDugarolo() {
+    return Math.floor(Math.random() * 7);
   }
 
   function loadCards(json) {
     setCardList(
       json
+        .map(item => {
+          item.dugarolo = generateRandomDugarolo();
+          return item;
+        })
         .filter(item => {
           if (props.tabName !== 'History') {
-            if (item.status !== 'Deleted' && item.status !== 'Satisfied') return true;
+            if (
+              item.status !== 'Cancelled' &&
+              item.status !== '4' &&
+              item.status !== 'Satisfied' &&
+              item.status !== '5'
+            )
+              return true;
             return false;
           }
           return true;
@@ -160,14 +184,38 @@ export default function CardLoader(props: Props): JSX.Element {
             field={item.field}
             channel={{ id: item.channel.id, name: item.channel.name }}
             type={item.type}
-            dugarolo={2}
+            dugarolo={item.dugarolo}
             onPressEvent={() => onPressEvent(item)}
-            onLocationEvent={() => props.gotoLocation([40, 2])}
+            onLocationEvent={() => props.gotoLocation(getFieldLocation(item))}
             onAcceptEvent={() => acceptEventTomorrow(json, item)}
             onDeleteEvent={() => deleteEvent(json, item)}
+            onSatisfyEvent={() => satisfyEvent(json, item)}
           />
         ))
     );
+
+    setSnackBarError(false);
+    setIsLoaded(true);
+  }
+
+  function loadCardHistory() {
+    setFetchingHistory(true);
+
+    let fromRequest = formatDataForHistoryRequest(props.from);
+    let toRequest = formatDataForHistoryRequest(props.to);
+
+    fetch(
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/irrigations?from=' +
+        fromRequest +
+        '&to=' +
+        toRequest
+    )
+      .then(res => res.json())
+      .then(json => loadCards(json))
+      .then(() => setFetchingHistory(false))
+      .catch(() => {
+        console.log('Server data fetch error');
+      });
   }
 
   function onPressEvent(item) {
@@ -175,20 +223,10 @@ export default function CardLoader(props: Props): JSX.Element {
     setDetailsClicked(true);
   }
 
-  function prepareStringForPost(item) {
-    do {
-      item = item.replace(':', '%3A');
-      item = item.replace('/', '%2F');
-      item = item.replace('+', '%2B');
-    } while (item.includes('/') || item.includes(':') || item.includes('+'));
-
-    return item;
-  }
-
-  /*It has to be tested*/
-  function deleteEvent(json, item) {
-    item.id = prepareStringForPost(item.id);
-    item.field = prepareStringForPost(item.field);
+  
+  function deleteEvent(json: any[], item) {
+    item.id = encodeURIComponent(item.id);
+    item.field = encodeURIComponent(item.field);
 
     const requestOptions = {
       method: 'POST',
@@ -205,47 +243,45 @@ export default function CardLoader(props: Props): JSX.Element {
       requestOptions
     )
       .then(response => {
-        console.log(response);
         if (response.ok) {
           setIsLoaded(false);
-          loadCards(json);
+          loadCards(json.splice(json.indexOf(item), 1));
           setIsLoaded(true);
-          console.log('Cancelled!');
         }
       })
       .catch(error => console.log(error));
   }
 
-  //2021-06-02T12:00:00.000+0200
-  //http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/irrigations?from=2021-05-03T09%3A58%3A11.000%2B0200&to=2021-06-02T12%3A00%3A00.000%2B0200
-  function loadCardHistory(from, to) {
-    let fromRequest = formatDataForHistoryRequest(from);
-    let toRequest = formatDataForHistoryRequest(to);
+  function satisfyEvent(json: any[], item) {
+    item.id = encodeURIComponent(item.id);
+    item.field = encodeURIComponent(item.field);
 
-    setIsLoaded(false);
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Satisfied' }),
+    };
 
     fetch(
-      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/irrigations?from=' +
-        fromRequest +
-        '&to=' +
-        toRequest
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/' +
+        item.field +
+        '/irrigation_plan/' +
+        item.id +
+        '/status',
+      requestOptions
     )
-      .then(res => res.json())
-      .then(json => loadCards(json))
-      .then(() => setIsLoaded(true))
-      //.then(() => console.log('Server data fetched successfully'))
-      .catch(() => {
-        setIsLoaded(true);
-        console.log('Server data fetch error');
-      });
+      .then(response => {
+        if (response.ok) {
+          setIsLoaded(false);
+          loadCards(json.splice(json.indexOf(item), 1));
+          setIsLoaded(true);
+        }
+      })
+      .catch(error => console.log(error));
   }
 
   /* Accepting event for tomorrow tab */
   function acceptEventTomorrow(json, item) {
-    console.log(item);
-    let finalJsonToPost = prepareStringForPost(item);
-    console.log(finalJsonToPost);
-
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -254,9 +290,9 @@ export default function CardLoader(props: Props): JSX.Element {
 
     fetch(
       'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/AssignedFarms/' +
-        finalJsonToPost.field +
+        encodeURIComponent(item.field) +
         '/irrigation_plan/' +
-        finalJsonToPost.id +
+        encodeURIComponent(item.id) +
         '/status',
       requestOptions
     )
@@ -264,9 +300,8 @@ export default function CardLoader(props: Props): JSX.Element {
         console.log(response);
         if (response.ok) {
           setIsLoaded(false);
-          loadCards(json);
+          loadCards(json.splice(json.indexOf(item), 1));
           setIsLoaded(true);
-          console.log('Accepted!');
         }
       })
       .catch(error => console.log(error));
@@ -277,7 +312,7 @@ export default function CardLoader(props: Props): JSX.Element {
   }
 
   return !snackBarError ? (
-    isLoaded ? (
+    isLoaded && !fetchingHistory ? (
       !detailsClicked ? (
         cardList.length > 0 ? (
           <List className="list">{cardList}</List>

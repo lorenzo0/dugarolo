@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import './LayoutTabs.css';
 import CardLoader from '../AssetLoader/CardLoader';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
@@ -13,8 +13,9 @@ import Alert from '@material-ui/lab/Alert';
 
 interface Props {
   tabName: string;
-  serverData: any;
-  setServerData: Dispatch<SetStateAction<undefined>>;
+  cardsData: any;
+  setCardsData: Dispatch<SetStateAction<undefined>>;
+  mapData: any;
 }
 
 export default function LayoutTabs(props: Props) {
@@ -50,7 +51,7 @@ export default function LayoutTabs(props: Props) {
   return (
     <div className="container">
       <div className="top_div">
-        <MapView />
+        <MapView mapData={props.mapData} />
       </div>
       <div className="space-top" />
       {props.tabName === 'History' ? (
@@ -129,10 +130,11 @@ export default function LayoutTabs(props: Props) {
       <div className="bottom_div">
         <CardLoader
           tabName={props.tabName}
-          serverData={props.serverData}
-          setServerData={props.setServerData}
+          cardsData={props.cardsData}
+          setCardsData={props.setCardsData}
           gotoLocation={onClick}
           chosenDugarolo={chosenDugarolo}
+          mapData={props.mapData}
           from={from}
           to={to}
         />

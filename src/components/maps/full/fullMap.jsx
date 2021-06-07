@@ -37,7 +37,7 @@ export default function FullMap({ farms, weirs, connections, toggleExtendedMap }
     <>
       <MapContainer center={[44.7016081, 10.5682283]} zoom={zoom} whenCreated={setMap}>
         <TileLayer
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors/>'
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
@@ -51,7 +51,7 @@ export default function FullMap({ farms, weirs, connections, toggleExtendedMap }
 
         {connections.map(object => (
           <Polyline
-            color="red"
+            color="blue"
             positions={[
               [object.connection.start.lan, object.connection.start.long],
               [object.connection.end.lan, object.connection.end.long],

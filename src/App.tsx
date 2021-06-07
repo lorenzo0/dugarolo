@@ -25,19 +25,31 @@ import './theme/variables.css';
 
 const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
-  const [serverData, setServerData] = useState<any>();
-  
+  const [cardsData, setCardsData] = useState<any>();
+  const [mapData, setMapData] = useState<any>();
 
   useEffect(() => {
-    setServerData("Loading");
+    setCardsData('Loading');
+    const urls: string[] = [
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/WDMInspector/%7Bispector%7D/assigned_farms',
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/wdn/nodes',
+      'http://mml.arces.unibo.it:3000/v0/WDmanager/%7Bid%7D/wdn/connections',
+    ];
+
+    Promise.all(urls.map(url => fetch(url))).then(responses =>
+      Promise.all(responses.map(res => res.json()))
+        .then(json => setMapData(json))
+        .catch(() => setMapData('Failed'))
+    );
+
     fetch(
       'http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{inspector}/irrigation_plan'
     )
       .then(res => res.json())
-      .then(json => setServerData(json))
-      .then(() => setIsLoaded(true))
+      .then(json => setCardsData(json))
       .then(() => console.log('Server data fetched successfully'))
-      .catch(() => setServerData("Failed"));
+      .then(() => setIsLoaded(true))
+      .catch(() => setCardsData('Failed'));
   }, [isLoaded]);
 
   return (
@@ -46,13 +58,28 @@ const App: React.FC = () => {
         <IonTabs>
           <IonRouterOutlet>
             <Route exact path="/TodayTab">
-              <Tab name="Today" serverData={serverData} setServerData={setServerData} />
+              <Tab
+                name="Today"
+                cardsData={cardsData}
+                setCardsData={setCardsData}
+                mapData={mapData}
+              />
             </Route>
             <Route exact path="/TomorrowTab">
-              <Tab name="Tomorrow" serverData={serverData} setServerData={setServerData} />
+              <Tab
+                name="Tomorrow"
+                cardsData={cardsData}
+                setCardsData={setCardsData}
+                mapData={mapData}
+              />
             </Route>
             <Route exact path="/HistoryTab">
-              <Tab name="History" serverData={serverData} setServerData={setServerData} />
+              <Tab
+                name="History"
+                cardsData={cardsData}
+                setCardsData={setCardsData}
+                mapData={mapData}
+              />
             </Route>
 
             <Redirect exact path="/" to="/TodayTab" />
