@@ -4,15 +4,12 @@ import { IonApp, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } f
 import { IonReactRouter } from '@ionic/react-router';
 import Tab from './tabs/Tab';
 
-/* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
-/* Basic CSS for apps built with Ionic */
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
 import '@ionic/react/css/typography.css';
 
-/* Optional CSS utils that can be commented out */
 import '@ionic/react/css/padding.css';
 import '@ionic/react/css/float-elements.css';
 import '@ionic/react/css/text-alignment.css';
@@ -20,7 +17,6 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/* Theme variables */
 import './theme/variables.css';
 
 const App: React.FC = () => {
@@ -28,6 +24,16 @@ const App: React.FC = () => {
   const [cardsData, setCardsData] = useState<any>();
   const [mapData, setMapData] = useState<any>();
 
+  /* 
+    This useEffect will be loaded just once, so I make the API's request that don't need
+    to be updated during the using of the application. 
+
+    Here I load;
+      - Fields and farms
+      - Weirs
+      - Connections
+      - Requests
+  */
   useEffect(() => {
     setCardsData('Loading');
     const urls: string[] = [
@@ -52,6 +58,13 @@ const App: React.FC = () => {
       .catch(() => setCardsData('Failed'));
   }, [isLoaded]);
 
+  /*
+    Routing tabs using IonRouterOutlet. In every tab the data loaded is shared.
+    Specifing TodayTab as the default one.
+
+    IonBar is the bottom-bar of the application. From there it is possible to
+    modify the tab loaded.
+  */
   return (
     <IonApp>
       <IonReactRouter>

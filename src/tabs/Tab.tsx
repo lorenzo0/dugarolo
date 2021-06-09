@@ -9,6 +9,10 @@ interface Props {
   mapData: any;
 }
 
+/*
+  Every tab has the same layout. This is defined by the function LayoutTabs.
+  I need this function in order to let the user understand in which tab he/she is using.
+*/
 export default function Tab(props: Props): JSX.Element {
   return (
     <IonPage>

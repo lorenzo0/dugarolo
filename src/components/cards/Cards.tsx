@@ -55,6 +55,13 @@ function CardItem({
   const title = 'Channel: ' + channel.name;
   const subheader = 'Field: ' + getFieldName();
 
+  /*
+    When the dugarolo asks to play or pause a request (Today Tab), it has to change status
+    to Ongoing/Interrupted. This is done by a POST request from the APP to the mml server.
+    
+    If the post request received an answer 'ok', as sign that it went well (such as status 200, 204, ...),
+    the card's details are updated after triggering the hooks.
+  */
   function playOrPause() {
     const idPost = encodeURIComponent(id);
     const fieldPost = encodeURIComponent(field);

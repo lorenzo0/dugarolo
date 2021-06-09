@@ -16,6 +16,10 @@ interface Props {
   to?: MaterialUiPickersDate;
 }
 
+/* 
+  Structure of the data received from the server and used
+  to communicate with mml by POST 
+*/
 export interface ParsedDateTime {
   day: number;
   month: number;
@@ -33,7 +37,21 @@ export default function CardLoader(props: Props): JSX.Element {
   const [snackBarError, setSnackBarError] = useState<boolean>(false);
   const [fetchingHistory, setFetchingHistory] = useState<boolean>(false);
 
-  /* isLoaded is not set false in the first time */
+  /*
+    IF data are already loaded,
+      IF to and from (Datepickers) are defined,
+        call dedicated function to load data for history tab
+
+      IF to and from (Datepickers) are NOT defined,
+        call function to generate the rest of the cards.
+
+    IF data shows message as Failed,
+      print snackbar of error
+
+    IF data shows message as Loading,
+      print message of retriving message
+    
+  */
   useEffect(() => {
     if (props.cardsData === 'Loading') console.log('Loading cards data');
     else if (props.cardsData === 'Failed') setSnackBarError(true);
@@ -43,6 +61,12 @@ export default function CardLoader(props: Props): JSX.Element {
     }
   }, [isLoaded, props.cardsData, props.chosenDugarolo, props.from, props.to]);
 
+  /*
+    function which convert data from format:
+      2021-06-07T12:02:04.123+0200
+
+    to an object with all the information separated.
+  */
   function parseDate(rawDateTime: string): ParsedDateTime {
     const tmpDateTime: string[] = rawDateTime.split('T');
 
@@ -59,7 +83,16 @@ export default function CardLoader(props: Props): JSX.Element {
     return { day: day, month: month, year: year, hour: hour, minutes: minutes, seconds: seconds };
   }
 
-  //2021-06-02T12:00:00.000+0200
+  /*
+    Server MML request a type of data which has to be like this;
+      2021-06-07T12:02:04.123+0200
+
+    The function requested (x value) remove the 0 value of day, month, minute and second value,
+    making the format of the data invalid;
+
+      2021-6-7T12:2:4.123+0200 INVALID
+      2021-06-07T12:02:04.123+0200 VALID
+  */
   function formatDataForHistoryRequest(x) {
     let month, day, hour, minute, second;
 
@@ -85,6 +118,42 @@ export default function CardLoader(props: Props): JSX.Element {
     return stringStart;
   }
 
+  /* 
+    This function finds the reference between the request and the field data.
+    The requests data are retrieved by this API;
+      http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{inspector}/irrigation_plan
+    
+    and release data in JSON with this format;
+
+      {
+        "id": "nodeID://b25850304",
+        "field": "http://swamp-project.org/cbec/field_25903",
+        "type": "CBEC",
+        "channel": {
+          "id": "http://swamp-project.org/cbec/canal_BBE753",
+          "name": "ZAPPELLAZZO"
+        },
+        "waterVolume": 2,
+        "start": "2021-06-07T12:00:00.000+0200",
+        "status": "Satisfied"
+      }
+
+    The fields data are retrieved by this API;
+      http://mml.arces.unibo.it:3000/v0/WDmanager/{id}/WDMInspector/{ispector}/assigned_farms
+    
+    and release data in JSON with this format;
+
+      {
+        "name":"http://swamp-project.org/cbec/farmer_91268487",
+        "location":{"lat":44.829997852407445,"lon":10.5473201941384},
+        "fields":[{"id":"http://swamp-project.org/cbec/field_25905",
+          "location":{"lon":10.5481341798491,"lat":44.8314080153867},
+          "area":[{"lon":10.5481341798491,"lat":44.8314080153867} ....
+
+    
+    In order to have the location of the field specified by the request, the data
+    received from the second API has to be analysed. This function is used to linked these two information.
+  */
   function getFieldLocation(item) {
     let tmpLocation: number[] = [];
 
@@ -103,9 +172,33 @@ export default function CardLoader(props: Props): JSX.Element {
     return tmpLocation;
   }
 
+  /*
+    Since the server does not assign the dugarolo to the single request,
+    I generate this information randomly, supposing there are 7 dugaroli 
+    who have to satisfy all the requests.
+  */
+
   function generateRandomDugarolo() {
     return Math.floor(Math.random() * 7);
   }
+
+  /* 
+    This function set the hook 'cardList' which return the list of the card
+    with all the information associated to the requests.
+
+    Once I have the json, I;
+      - generate the dugarolo assigned to satisfy the request.
+      - filter the requests; 
+        - if the tab selected is today I want to show only the requests 
+          with status Accepted, Ongoing or Interrupted
+        - if the tab selected is tomorrow I want to show only the requests 
+          with status Scheduled
+         if the tab selected is history I want to show all the requests.
+      - filter the requests by data.
+      - filter the requests by dugarolo (if specified, else the value is -1)
+      - sort them
+      - create the object Card with all the details and add it to the main list
+  */
 
   function loadCards(json) {
     setCardList(
@@ -115,12 +208,21 @@ export default function CardLoader(props: Props): JSX.Element {
           return item;
         })
         .filter(item => {
-          if (props.tabName !== 'History') {
+          if (props.tabName === 'Tomorrow') {
             if (
-              item.status !== 'Cancelled' &&
-              item.status !== '4' &&
-              item.status !== 'Satisfied' &&
-              item.status !== '5'
+              item.status === 'Cancelled' &&
+              item.status === '4'
+            )
+              return true;
+            return false;
+          }else if (props.tabName === 'Today') {
+            if (
+              item.status === 'Accepted' &&
+              item.status === '1' &&
+              item.status === 'Ongoing' &&
+              item.status === '2' &&
+              item.status === 'Interrupted' &&
+              item.status === '3'
             )
               return true;
             return false;
@@ -198,6 +300,11 @@ export default function CardLoader(props: Props): JSX.Element {
     setIsLoaded(true);
   }
 
+  /*
+    When both of the datepickers have a value that is not undefined, the
+    system send a get request to the mml server in order to retrieve 
+    all the requests which are listed in the interval specified by the user.
+  */
   function loadCardHistory() {
     setFetchingHistory(true);
 
@@ -218,12 +325,23 @@ export default function CardLoader(props: Props): JSX.Element {
       });
   }
 
+  /*
+    This function specify the behaviour of the system when
+    a card is pressed (not the interactive buttons) 
+  */
   function onPressEvent(item) {
     setItemDetails(item);
     setDetailsClicked(true);
   }
-
   
+  /*
+    When the dugarolo asks to remove a request (Today tab, from accepted or interrupted status, 
+    Tomorrow Tab, from Scheduled), it has to change status
+    to Cancelled. This is done by a POST request from the APP to the mml server.
+    
+    If the post request received an answer 'ok', as sign that it went well (such as status 200, 204, ...),
+    the list is updated, removing the selected card from the cardLoader list.
+  */
   function deleteEvent(json: any[], item) {
     item.id = encodeURIComponent(item.id);
     item.field = encodeURIComponent(item.field);
@@ -252,6 +370,13 @@ export default function CardLoader(props: Props): JSX.Element {
       .catch(error => console.log(error));
   }
 
+  /*
+    When the dugarolo asks to satisfy (Today tab, from ongoing status) a request, it has to change status
+    to Satified. This is done by a POST request from the APP to the mml server.
+    
+    If the post request received an answer 'ok', as sign that it went well (such as status 200, 204, ...),
+    the list is updated, removing the selected card from the cardLoader list.
+  */
   function satisfyEvent(json: any[], item) {
     item.id = encodeURIComponent(item.id);
     item.field = encodeURIComponent(item.field);
@@ -280,7 +405,13 @@ export default function CardLoader(props: Props): JSX.Element {
       .catch(error => console.log(error));
   }
 
-  /* Accepting event for tomorrow tab */
+  /*
+    When the dugarolo asks to accept a request (Tomorrow Tab), it has to change status
+    to Accepted. This is done by a POST request from the APP to the mml server.
+    
+    If the post request received an answer 'ok', as sign that it went well (such as status 200, 204, ...),
+    the list is updated, removing the selected card from the cardLoader list.
+  */
   function acceptEventTomorrow(json, item) {
     const requestOptions = {
       method: 'POST',
@@ -307,10 +438,34 @@ export default function CardLoader(props: Props): JSX.Element {
       .catch(error => console.log(error));
   }
 
+  /*
+    When onPressEvent() is triggered, DetailsTab function is called
+  */
   function goToDetails() {
     return <DetailsTab ObjectDetails={itemDetails} BackEvent={() => setDetailsClicked(false)} />;
   }
 
+  /*
+    IF the data recived are not null,
+      IF the loading of the arrays with the information are full AND
+      the history information are not fetching,
+        IF the details of the card are not requested,
+
+          IF the list of the cards have a size > 0,
+            load card
+          IF the list of the cards have a size == 0,
+            print alert
+        
+        IF the details of the card are requested,
+          DetailsTab function is called
+
+      IF the loading of the arrays with the information are empty OR
+      the history information are fetching,
+        Alert with loading message is printed
+
+    IF the data recived are null,
+      snackbar with error message is printed
+  */
   return !snackBarError ? (
     isLoaded && !fetchingHistory ? (
       !detailsClicked ? (

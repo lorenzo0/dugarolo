@@ -8,6 +8,14 @@ import './fullMap.css';
 
 const zoom = 13;
 
+/*
+  Another instance of the map is created. This because it is impossible
+  to modify the size of the map after being created.
+
+  The arrays with the data are already generated from the first map, so it
+  is not needed to load them again.
+*/
+
 export default function FullMap({ farms, weirs, connections, toggleExtendedMap }) {
   const [map, setMap] = useState(null);
   const purpleOptions = { color: 'purple' };

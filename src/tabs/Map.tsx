@@ -8,6 +8,11 @@ interface Props {
   toggleExtendedMap: () => void;
 }
 
+/*
+  This tab is dedicated to show the map at full screen.
+  In order to do this, LayoutTabs.tsx is not called, avoiding the division of the screen.
+*/
+
 export default function MapTab({
   farms,
   weirs,

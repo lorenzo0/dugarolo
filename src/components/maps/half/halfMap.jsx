@@ -10,6 +10,10 @@ import './halfMap.css';
 let zoom = 13;
 let mapInstance;
 
+/*
+  Function called from CardLoader in order to fly to the location of
+  the field selected. It will modifiy the center and the zoom of the interactive map. 
+*/
 export function onClick(newPosition) {
   zoom = 17;
   mapInstance.flyTo(newPosition, zoom);
@@ -26,6 +30,15 @@ export default function MapView(props) {
 
   const purpleOptions = { color: 'purple' };
 
+  /*
+    Generator of map instance. If App.tsx loaded correctly the data,
+    the useEffect of halfMap.jsx, will load the farms, weirs and connection 
+    as elements over the interactive map.
+
+    Before adding this information, the information received from LayoutTabs.tsx
+    have to be analysed and structured in a way where it is possible retriving 
+    basic information regarding the objects.
+  */
   useEffect(() => {
     if (map != null) {
       mapInstance = map;
@@ -64,7 +77,6 @@ export default function MapView(props) {
     setFarms(tmpFarms);
   }
 
-  //{"type":"Weir","id":"http://swamp-project.org/ns#Gate2","name":"Paratoia 2","location":{"lat":44.7745341766,"lon":10.7233746178}}
   function loadWeirs(items) {
     let tmpWeirs = [];
 
@@ -95,10 +107,37 @@ export default function MapView(props) {
     setConnections(tmpConnection);
   }
 
+
+  /* 
+    Handling of click for extending the map, if it is requested, it will call the 
+    function fullmap.
+  */
   function toggleExtendedMap() {
     setExtendedMap(!extendedMap);
   }
 
+  /*
+    IF the data recived are not null,
+    IF the button of the extended map was not clicked,
+    IF the loading of the arrays with the information are full,
+    
+      generate instance of the map.
+      Once the basic information are loaded;
+        - the polygons that rapresent the farms
+        - the circles that rapresent the weirs
+        - the polyling that rapresent the connections
+
+      are drawed over the map.
+
+    IF the loading of the arrays with the information are still empty,
+      print to the screen the gif which rapresent the retrieving of the data
+
+    IF the button of the extended map was clicked,
+      call the function fullmap to extend the resource
+
+    IF the data recived are null,
+      print to the screen the snack bar of error
+  */
   return !snackBarError ? (
     !extendedMap ? (
       isLoaded ? (

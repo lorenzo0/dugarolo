@@ -34,6 +34,8 @@ export default function LayoutTabs(props: Props) {
     background: '#90EE90',
   };
 
+  /* START Handle click, closing of the menu and setting of the selected dugarolo */ 
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -48,6 +50,18 @@ export default function LayoutTabs(props: Props) {
     setToSchedule(!toSchedule);
   }
 
+  /* END Handle click, closing of the menu and setting of the selected dugarolo */ 
+
+  /*
+    This function is made in order to modify dinamically the content of the tab.
+    As it possible to observe, between the lines xx-xx the top-div is defined.
+
+    Each tab has the same definition of the higher part of the layout. The map will be contained in the 40%
+    of the desktop (defined by css).
+
+    By the ternary IF I defined the content for each condition, after adding details for each tabs, the function
+    cardLoaded is called, in order to print the list of the requests.
+  */
   return (
     <div className="container">
       <div className="top_div">
