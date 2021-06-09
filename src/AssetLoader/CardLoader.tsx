@@ -210,8 +210,10 @@ export default function CardLoader(props: Props): JSX.Element {
         .filter(item => {
           if (props.tabName === 'Tomorrow') {
             if (
-              item.status === 'Cancelled' &&
-              item.status === '4'
+              item.status !== 'Cancelled' &&
+              item.status !== '4' &&
+              item.status !== 'Accepted' &&
+              item.status !== '1'
             )
               return true;
             return false;
