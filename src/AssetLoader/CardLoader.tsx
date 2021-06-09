@@ -217,12 +217,10 @@ export default function CardLoader(props: Props): JSX.Element {
             return false;
           }else if (props.tabName === 'Today') {
             if (
-              item.status === 'Accepted' &&
-              item.status === '1' &&
-              item.status === 'Ongoing' &&
-              item.status === '2' &&
-              item.status === 'Interrupted' &&
-              item.status === '3'
+              item.status !== 'Cancelled' &&
+              item.status !== '4' &&
+              item.status !== 'Satisfied' &&
+              item.status !== '5'
             )
               return true;
             return false;
